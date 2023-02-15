@@ -1,0 +1,1 @@
+We're slicing the Grassmannian $\operatorname{Gr(2,6)}$. Yay!
