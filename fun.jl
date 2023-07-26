@@ -55,34 +55,28 @@ HC_solve_oscar(f)
 k = 2
 m = 6
 R,ϕ,vrs,M= plückercoordinates(k,m,QQ);
-l = 8
-F = [rand(-10:10,length(ϕ))'*ϕ for i = 1:l]
-degs_F = [1 for i=1:length(F)];
-dreg= sum(degs_F)-m+1 +1 
-w = [-4;-1;-3;-2;-2;-3;-1;-4];
-leadexps = [leadexp(hh,w) for hh in ϕ]
-leadmons = [leadmon(hh,w) for hh in ϕ]
-#@time solve_Khovanskii(F,dreg,degs_F,ϕ,vrs,leadexps)
-# 726.663201 seconds 
-###############################################
-
+R
 T , variable = PolynomialRing(QQ, vcat(["t$i" for i=1:8], "u" ) )
 u = variable[9]
 ι = hom(R,T,gens(T)[1:8])
-G = ι.(F)
-W=vcat(w,[0])
-terms= [ collect(Oscar.terms(G[j])) for j=1:length(G) ]
-Fu= [sum([ u^( transpose(W)*(leadexp(terms[j][i],W)-leadexp(G[j],W) )) * terms[j][i]  for i=1:length(terms[j]) ]) for j=1:length(G)]
+ϕ = ι.(ϕ)
+w = [-4;-1;-3;-2;-2;-3;-1;-4;0];
+
+terms = [ collect(Oscar.terms(ϕ[j])) for j in eachindex(ϕ) ]
+ϕu = [sum([ u^( transpose(w)*(leadexp(terms[j][i],w)-leadexp(ϕ[j],w) )) * terms[j][i]  for i=1:length(terms[j]) ]) for j=1:length(ϕ)]
+
+l = 8
+Fu = [rand(-10:10,length(ϕu))'*ϕu for i = 1:l];
+
  @var x[1:9]
 vars_HC =  x[1:9]
-Fu_HC = [oscar_to_HC_Q(Fu[j],vars_HC) for j=1:length(Fu)]
+Fu_HC = [oscar_to_HC_Q(F[j],vars_HC) for j in eachindex(Fu)];
 
-C = System(Fu_HC, variables = vars_HC[1:8], parameters = vars_HC[9:9])
+C = System(Fu_HC, variables = vars_HC[1:8], parameters = vars_HC[9:9]);
 
 ev = hom(T,T,vcat(gens(T)[1:8],[0]))
 F0 = ev.(Fu)
 
-result_1 = HomotopyContinuation.solve(C, target_parameters = [0])
-S_1 = solutions(result_1)
-HomotopyContinuation.solve((C, S_1; start_parameters = [0], target_parameters = [1]))
-
+torus_result = HomotopyContinuation.solve(C, target_parameters = [0])
+torus_sol = solutions(torus_result);
+HomotopyContinuation.solve(C, torus_sol; start_parameters = [0], target_parameters = [1])
