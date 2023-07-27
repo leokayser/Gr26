@@ -60,23 +60,34 @@ T , variable = PolynomialRing(QQ, vcat(["t$i" for i=1:8], "u" ) )
 u = variable[9]
 ι = hom(R,T,gens(T)[1:8])
 ϕ = ι.(ϕ)
-w = [-4;-1;-3;-2;-2;-3;-1;-4;0];
+w = [-3;0;-2;-1;-1;-2;0;-3;0];
 
 terms = [ collect(Oscar.terms(ϕ[j])) for j in eachindex(ϕ) ]
 ϕu = [sum([ u^( transpose(w)*(leadexp(terms[j][i],w)-leadexp(ϕ[j],w) )) * terms[j][i]  for i=1:length(terms[j]) ]) for j=1:length(ϕ)]
-
 l = 8
-Fu = [rand(-10:10,length(ϕu))'*ϕu for i = 1:l];
+Fu = [rand(-100:100,length(ϕu))'*ϕu for i = 1:l]
 
- @var x[1:9]
-vars_HC =  x[1:9]
-Fu_HC = [oscar_to_HC_Q(F[j],vars_HC) for j in eachindex(Fu)];
+ @var x[1:9] a[1:8,1:15]
+vars_HC =  x[1:9] 
+ϕu_HC= [oscar_to_HC_Q(ϕu[i], vars_HC) for i=1:length(ϕu)]
+#Fu_HC = [oscar_to_HC_Q(F[j],vars_HC) for j in eachindex(Fu)];
+Fu_HC = a*ϕu_HC
 
-C = System(Fu_HC, variables = vars_HC[1:8], parameters = vars_HC[9:9]);
+C = System(Fu_HC, variables = vars_HC[1:8], parameters = [vars_HC[9];a[:]])
 
 ev = hom(T,T,vcat(gens(T)[1:8],[0]))
 F0 = ev.(Fu)
 
-torus_result = HomotopyContinuation.solve(C, target_parameters = [0])
+targ_par = [0;randn(ComplexF64, length(a[:]))]
+torus_result = HomotopyContinuation.solve(C, target_parameters = targ_par )
 torus_sol = solutions(torus_result);
-HomotopyContinuation.solve(C, torus_sol; start_parameters = [0], target_parameters = [1])
+
+targ_par_new = [1;randn(ComplexF64, length(a[:]))]
+grass_result = HomotopyContinuation.solve(C, torus_sol; start_parameters = targ_par, target_parameters = targ_par_new)
+grass_sol = solutions(grass_result)
+
+targ_par_int = [1; rand(-100:100, length(a[:]))]
+HomotopyContinuation.solve(C, torus_sol; start_parameters = targ_par, target_parameters = targ_par_int)
+
+@time HomotopyContinuation.solve(C, grass_sol; start_parameters = targ_par_new, target_parameters = targ_par_int)
+
