@@ -1,5 +1,7 @@
 using Oscar
 using HomotopyContinuation
+import Pkg
+Pkg.add("KhovanskiiSolving")
 using KhovanskiiSolving
 #using AbstractAlgebra
 
@@ -41,20 +43,19 @@ function linear_forms(pts,ϕ)
     return lins
 end
 
-realpts = [pluecker_embedding(rand(-10:10,2,6)) for i = 1:7]
+#realpts = [pluecker_embedding(rand(-10:10,2,6)) for i = 1:7]
+#transpose(reshape( vcat(realpts...), 15,7))
 
-transpose(reshape( vcat(realpts...), 15,7))
-
-k = 2
-m = 6
-f = random_linear_section(grassmann_pluecker_ideal(k,m), k*(m-k))
-HC_solve_oscar(f)
+#k = 2
+#m = 6
+#f = random_linear_section(grassmann_pluecker_ideal(k,m), k*(m-k))
+#HC_solve_oscar(f)
 
 
 ###############################################
 k = 2
 m = 6
-R,ϕ,vrs,M= plückercoordinates(k,m,QQ);
+R,ϕ,vrs,M = plückercoordinates(k,m,QQ);
 R
 T , variable = PolynomialRing(QQ, vcat(["t$i" for i=1:8], "u" ) )
 u = variable[9]
@@ -67,7 +68,7 @@ terms = [ collect(Oscar.terms(ϕ[j])) for j in eachindex(ϕ) ]
 l = 8
 Fu = [rand(-100:100,length(ϕu))'*ϕu for i = 1:l]
 
- @var x[1:9] a[1:8,1:15]
+@var x[1:9] a[1:8,1:15]
 vars_HC =  x[1:9] 
 ϕu_HC= [oscar_to_HC_Q(ϕu[i], vars_HC) for i=1:length(ϕu)]
 #Fu_HC = [oscar_to_HC_Q(F[j],vars_HC) for j in eachindex(Fu)];
@@ -85,9 +86,12 @@ torus_sol = solutions(torus_result);
 targ_par_new = [1;randn(ComplexF64, length(a[:]))]
 grass_result = HomotopyContinuation.solve(C, torus_sol; start_parameters = targ_par, target_parameters = targ_par_new)
 grass_sol = solutions(grass_result)
+HomotopyContinuation.write_parameters("Gr26_start_parameters.txt", targ_par_new)
+HomotopyContinuation.write_solutions("Gr26_start_system.txt", grass_sol)
+
+gr_start_param = HomotopyContinuation.read_parameters("Gr26_start_parameters.txt")
+gr_start_system = HomotopyContinuation.read_solutions("Gr26_start_system.txt")
 
 targ_par_int = [1; rand(-100:100, length(a[:]))]
-HomotopyContinuation.solve(C, torus_sol; start_parameters = targ_par, target_parameters = targ_par_int)
-
-@time HomotopyContinuation.solve(C, grass_sol; start_parameters = targ_par_new, target_parameters = targ_par_int)
-
+@time grass_result = HomotopyContinuation.solve(C, gr_start_system; start_parameters = gr_start_param, target_parameters = targ_par_int)
+HomotopyContinuation.real_solutions(grass_result)
