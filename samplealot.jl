@@ -6,7 +6,7 @@ println("Loading packages done!")
 
 function oscar_to_HC_Q(f,vars)
     cffs = convert.(Rational{Int64},collect(Oscar.coefficients(f)))
-    exps = collect(Oscar.exponent_vectors(f))
+    exps = collect(Oscar.exponents(f))
     sum([cffs[i]*prod(vars.^exps[i]) for i = 1:length(cffs)])
 end
 
@@ -24,7 +24,7 @@ function plückercoordinates(k,m,K)
 end
 
 function leadexp(f,w)
-    exps = collect(exponents(f))
+    exps = collect(Oscar.exponents(f))
     weights = [dot(w,e) for e in exps]
     lm = argmin(weights)
     exps[lm]
@@ -54,12 +54,45 @@ C = System(Fu_HC, variables = vars_HC[1:8], parameters = [vars_HC[9];a[:]])
 
 println("Defining system done.")
 
+###########
+
+#=
+targ_par = [0;randn(ComplexF64, length(a[:]))]
+torus_result = HomotopyContinuation.solve(C, target_parameters = targ_par )
+torus_sol = solutions(torus_result);
+
+targ_par_new = [1;randn(ComplexF64, length(a[:]))]
+grass_result = HomotopyContinuation.solve(C, torus_sol; start_parameters = targ_par, target_parameters = targ_par_new)
+grass_sol = solutions(grass_result)
+HomotopyContinuation.write_parameters("Gr26_start_parameters.txt", targ_par_new)
+HomotopyContinuation.write_solutions("Gr26_start_system.txt", grass_sol)
+=#
+
+############
+
 
 gr_start_param = HomotopyContinuation.read_parameters("Gr26_start_parameters.txt")
 gr_start_system = HomotopyContinuation.read_solutions("Gr26_start_system.txt")
 
 println("Loading start parameters done!")
 
-targ_par_int = [1; rand(-100:100, length(a[:]))]
-@time grass_result = HomotopyContinuation.solve(C, gr_start_system; start_parameters = gr_start_param, target_parameters = targ_par_int)
-HomotopyContinuation.real_solutions(grass_result)
+function uniform_Gr_point(a)
+    return randn(length(a[:]))
+end
+
+N = parse(Int64, ARGS[1])
+#N = 1000000
+counter = Dict(2*i => 0 for i=0:7)
+
+for i=1:N
+    targ_par = [1; uniform_Gr_point(a)]
+    grass_result = HomotopyContinuation.solve(C, gr_start_system; start_parameters = gr_start_param, target_parameters = targ_par)
+    real_sols = length(HomotopyContinuation.real_solutions(grass_result))
+    counter[real_sols] += 1
+end
+
+file = open(ARGS[2], "w")
+for i in 0:7
+    write(file, string(counter[2*i]),"\n")
+end
+close(file)
