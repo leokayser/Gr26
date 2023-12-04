@@ -5,7 +5,7 @@ Pkg.add("KhovanskiiSolving")
 using KhovanskiiSolving
 #using AbstractAlgebra
 
-]]function oscar_to_HC_Q(f,vars)
+function oscar_to_HC_Q(f,vars)
     cffs = convert.(Rational{Int64},collect(Oscar.coefficients(f)))
     exps = collect(Oscar.exponents(f))
     sum([cffs[i]*prod(vars.^exps[i]) for i = 1:length(cffs)])
