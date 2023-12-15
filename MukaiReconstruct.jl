@@ -4,12 +4,16 @@ using LinearAlgebra
 using HomotopyContinuation
 #using AbstractAlgebra
 
+
+function skew_matrix(a)
+    U = strictly_upper_triangular_matrix(a)
+    return U - transpose(U)
+end
+
 function randomSkmatrix(n)
     #S = matrix_space(QQ,n,n)
     v = [ rand(-8:8)//1 for i=1:n*(n-1)/2]
-    A = strictly_upper_triangular_matrix(v)
-    Sk = A-transpose(A)
-    return Sk
+    return skew_matrix(v)
 end
 
 function randomSOmatrix(n)
@@ -37,12 +41,25 @@ Gamma = randomSApoints(14)
 
 
 
-S, var_ax = graded_polynomial_ring(QQ, vcat(["a_($i,$j)" for i=1:6 for j=1:15],["x$i" for i=0:6])) 
+S, var_ax = polynomial_ring(QQ, vcat(["a_$i" for i=1:21],["x$i" for i=0:6])) 
 #S = Q[a_ij,x_i]
 
-Sk = [ strictly_upper_triangular_matrix(var_ax[1+i*15:15+i*15]) - transpose(strictly_upper_triangular_matrix(var_ax[1+i*15:15+i*15])) for i=0:5  ]
-A0 = block_diagonal_matrix(QQ, [[0 1; -1 0],[0 1; -1 0],[0 0; 0 0]])
-A = diagonal_matrix(var_ax[91],6)*A0 + sum( [(diagonal_matrix(var_ax[91+i],6))* (Sk[i]) for i=1:6]);
+
+function our_matrix_shape(i,vars)
+    δ(x, y) = x==y ? 1 : 0
+    lins = [transpose(rand(-10:10,3))*vars for i=1:5 ]
+    v = S.([lins[1], δ(i,0), δ(i,1), vars[1], vars[2],
+                    lins[2], δ(i,2), δ(i,3),  vars[3],
+                            lins[3], δ(i,4),  δ(i,5),
+                                    lins[4],  δ(i,6),
+                                              lins[5]])
+    return skew_matrix(v)
+end
+
+
+Sk = [ our_matrix_shape(i, var_ax[1+3*i:3+3*i]) for i=0:6  ]
+#A0 = block_diagonal_matrix(QQ, [[0 1; -1 0],[0 1; -1 0],[0 0; 0 0]])
+A =  sum([(diagonal_matrix(var_ax[21+i],6))* (Sk[i]) for i=1:7]);
 
 #pf4 = pfaffians(A,4);
 pf = pfaffian(A);
@@ -50,12 +67,12 @@ parent(pf)
 
 
 
-Ta, var_a = graded_polynomial_ring(QQ, ["a$i;$j" for i=1:6 for j=1:15] )  
+Ta, var_a = polynomial_ring(QQ, ["a_$i" for i=1:21] )  
 ##QQ[a_i_j]
-Tax, var_ax = graded_polynomial_ring(Ta, ["x$i" for i=0:6])
+Tax, var_x = polynomial_ring(Ta, ["x$i" for i=0:6])
 ##  QQ[a_i_j][x_i]
 
-ι = hom(S,Tax,vcat(var_a, var_ax) ) 
+ι = hom(S,Tax,vcat(var_a, var_x) ) 
 Pf = ι(pf);
 parent(Pf)
 #collect(Oscar.terms(Pf))
@@ -63,27 +80,27 @@ parent(Pf)
 
 equations = []
 for k=1:7
-push!(equations, [ Oscar.evaluate(derivative(Pf,var_ax[k]), [Gamma[i,j] for i=1:nrows(Gamma)] ) for j=1:ncols(Gamma) ]) 
+push!(equations, [ Oscar.evaluate(derivative(Pf,var_x[k]), [Gamma[i,j] for i=1:nrows(Gamma)] ) for j=1:ncols(Gamma) ]) 
 end
 
-Eq = hcat(equations...);
+
+Eq = vcat(equations...);
 length(Eq)
 
+#I = ideal(Eq);
+
+#a,b = Oscar.real_solutions(I);
 
 ### Convert to HomotopyContinuation
-@var A[1:6,1:15] 
-HC_vars = reshape(A[1:6,1:15] ,1,90)
+@var A[1:21] 
+HC_vars = reshape(A[1:21] ,1,21)
 Eq_HC =[ oscar_to_HC_Q(Eq[i],HC_vars) for i=1:length(Eq) ];
-for i=eachindex(Eq)
-   print(i);
-   oscar_to_HC_Q(Eq[i],HC_vars);
-end
+#for i=eachindex(Eq)
+#   print(i);
+#   oscar_to_HC_Q(Eq[i],HC_vars);
+#end
 
-oscar_to_HC_Q(Eq[2],HC_vars)
-
-result = HomotopyContinuation.solve( System(Eq_HC) ) #dim=21 underdetermined, makes sense
-
-
+result = HomotopyContinuation.solve( System(Eq_HC) ) 
 
 
 
