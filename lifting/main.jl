@@ -13,6 +13,7 @@ function do_the_homotopy(target)
     # load polynomial system
     # run HC
     # collect result
+    # Meaningful comment
     return
 
 Λ = do_the_homotopy(target) # Load start system and polynomial system, run HC
