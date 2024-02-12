@@ -62,6 +62,8 @@ end
 
 Γ = randomSApoints(14)
 
-normalize_SApoints(Γ)
-
+M = MatrixSpace(QQ,7,7)
+A = M(reshape([rand(-10:10) for i=1:49],7,7))
+G = hcat(A, A*(Γ[:,8:14]))
+normalize_SApoints(G)== Γ 
 
