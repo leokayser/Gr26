@@ -36,6 +36,7 @@ function oscar_to_HC_Q(f,varstring)
     exps = collect(Oscar.exponents(f))
     sum([cffs[i]*prod(varstring.^exps[i]) for i = 1:length(cffs)])
 end
+ 
 
 Gamma = randomSApoints(14)
 
