@@ -23,4 +23,4 @@ represent_solution(Λ)   # Print plücker coords or basis or whatever of L
 
 validate(Λ,Γ)           # Test if slicing X∩Λ equals Γ after coordinate transformation
 
-# no, this!
+# something
