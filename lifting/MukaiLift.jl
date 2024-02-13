@@ -57,6 +57,18 @@ function oscar_to_HC_Q(f,varstring)
     sum([cffs[i]*prod(varstring.^exps[i]) for i = 1:length(cffs)])
 end
 
+function Cayley_skew_to_orth(Sk)
+    I = identity_matrix(QQ,nrows(Sk))
+    Q =  (I+Sk)*inv(I-Sk)
+    return Q
+end
+
+function Cayley_orth_to_skew(Q)
+    I = identity_matrix(QQ,nrows(Q))
+    Sk = inv(Q+I)*(Q-I)
+    return Sk    
+end
+
 
 
 
@@ -65,5 +77,12 @@ end
 M = MatrixSpace(QQ,7,7)
 A = M(reshape([rand(-10:10) for i=1:49],7,7))
 G = hcat(A, A*(Γ[:,8:14]))
-normalize_SApoints(G)== Γ 
+normalize_SApoints(G)== Γ # true
 
+Sk = randomSkmatrix(6)
+Q = Cayley_skew_to_orth(Sk)
+Cayley_orth_to_skew(Q) == Sk #true
+
+Q = randomSOmatrix(6)
+Sk = Cayley_orth_to_skew(Q)
+Cayley_skew_to_orth(Sk) == Q #true
