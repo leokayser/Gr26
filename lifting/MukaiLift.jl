@@ -63,14 +63,32 @@ function Cayley_skew_to_orth(Sk)
     return Q
 end
 
-function Cayley_orth_to_skew(Q)
+
+
+function Cayley_skew_to_orth_coord(n)
+    m = n*(n-1)÷ 2
+    R, vrs = RationalFunctionField(QQ,["a_$i" for i=1:m])
+    Sk = skew_matrix(vrs)
+    I = identity_matrix(QQ,n)
+    A = (I+Sk)
+    B = I-Sk
+    binv = [ (-1)^(i+j)*det(B[deleteat!(collect(1:n),i),deleteat!(collect(1:n),j)]) for i=1:n for j=1:n ]
+    Binv = (1//(det(B))).*reshape( binv,n,n )
+    Q = R.(A)*(Binv)
+    #Jac = [ derivative(Q[i,j], vrs[k]) for i=1:n for j=1:n for k=1:length(vrs) ]
+    return R,Q
+end
+
+
+ function Cayley_orth_to_skew(Q)
     I = identity_matrix(QQ,nrows(Q))
     Sk = inv(Q+I)*(Q-I)
     return Sk    
 end
 
-
-
+R,C = Cayley_skew_to_orth_coord(6)
+R.(transpose(C))*C
+C[1,1]
 
 Γ = randomSApoints(14)
 
