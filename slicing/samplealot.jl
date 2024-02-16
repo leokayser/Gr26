@@ -71,13 +71,12 @@ HomotopyContinuation.write_solutions("Gr26_start_system.txt", grass_sol)
 ############
 
    
-gr_start_param = HomotopyContinuation.read_parameters("Gr26_start_parameters.txt")
-gr_start_system = HomotopyContinuation.read_solutions("Gr26_start_system.txt")
+gr_start_param = HomotopyContinuation.read_parameters("slicing/Gr26_start_parameters.txt")
+gr_start_system = HomotopyContinuation.read_solutions("slicing/Gr26_start_system.txt")
 
 A = reshape(gr_start_param[2:length(gr_start_param)], 8, 15) # This is the linear system whose solution are the Λ in P^14 
 B = LinearAlgebra.nullspace(A) # each column is an element of the basis of the space  Λ in P^14. The basis determines an isomorphism with P^6
 
-Z = ϕ.gr_start_system
 
 function poly_to_fp(F)
     n = Oscar.nvars(parent(F[1]))
@@ -90,7 +89,12 @@ function poly_to_fp(F)
 end
 
 numerical_plücker = poly_to_fp(ϕ)
-numerical_plücker.(gr_start_system) # 14 points in P^14
+XX = numerical_plücker.(gr_start_system) # 14 points in P^14
+
+I26 = grassmann_pluecker_ideal(2,6)
+
+numerical_plücker_rel = poly_to_fp(gens(I26))
+r = numerical_plücker_rel.(XX)
 
 
 #=
