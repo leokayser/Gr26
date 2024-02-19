@@ -17,7 +17,6 @@ function plückercoordinates(k,m,K)
     vrs = t
     MS = MatrixSpace(R,k,m)
     M = Int64.(diagm(ones(k))).+0*t[1]
-    N = MatrixSpace(R,m-k,k)
     Q = transpose(reshape(t,m-k,k))
     M = R.(hcat(M, Q))
     M = MS(M)
@@ -44,7 +43,7 @@ T , variable = PolynomialRing(QQ, vcat(["t$i" for i=1:8], "u" ) )
 u = variable[9]
 ι = hom(R,T,gens(T)[1:8])
 ϕ = ι.(ϕ)
-w = [-3;0;-2;-1;-1;-2;0;-3;0];
+w = [-3;-2;-1;0;0;-1;-2;-3;0];
 
 terms = [ collect(Oscar.terms(ϕ[j])) for j in eachindex(ϕ) ]
 ϕu = [sum([ u^( transpose(w)*(leadexp(terms[j][i],w)-leadexp(ϕ[j],w) )) * terms[j][i]  for i=1:length(terms[j]) ]) for j=1:length(ϕ)]
@@ -101,15 +100,15 @@ end
 ########################
 
 # Check that we have obtained points on the grassmannian by evaluating pluecker relations at those points
-#= 
-numerical_plücker = poly_to_fp(ϕ) 
-XX = numerical_plücker.(gr_start_system) # 14 points in P^14
+ 
 
-I26 = grassmann_pluecker_ideal(2,6)
-numerical_plücker_rel = poly_to_fp(gens(I26))
-r = numerical_plücker_rel.(XX)
-r[3] # is zero!
-=#
+numerical_plücker = poly_to_fp(ϕ) 
+Z = numerical_plücker.(gr_start_system) # 14 points in P^14
+
+[A*z for z in Z] #the points in Z lies in the linear section of P^14 as they should
+
+
+
 
 ########################
 
