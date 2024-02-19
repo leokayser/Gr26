@@ -73,11 +73,14 @@ function Cayley_skew_to_orth_coord(n)
     A = (I+Sk)
     B = I-Sk
     binv = [ (-1)^(i+j)*det(B[deleteat!(collect(1:n),i),deleteat!(collect(1:n),j)]) for i=1:n for j=1:n ]
-    Binv = (1//(det(B))).*reshape( binv,n,n )
+    #Binv = (1//(det(B))).*reshape( binv,n,n )
+    Binv = reshape( binv,n,n ) # no need to normalize once we are in P^6
     Q = R.(A)*(Binv)
     #Jac = [ derivative(Q[i,j], vrs[k]) for i=1:n for j=1:n for k=1:length(vrs) ]
     return R,Q
 end
+
+
 
 
  function Cayley_orth_to_skew(Q)
@@ -104,3 +107,5 @@ Cayley_orth_to_skew(Q) == Sk #true
 Q = randomSOmatrix(6)
 Sk = Cayley_orth_to_skew(Q)
 Cayley_skew_to_orth(Sk) == Q #true
+
+

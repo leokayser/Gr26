@@ -17,11 +17,19 @@ function plückercoordinates(k,m,K)
     vrs = t
     MS = MatrixSpace(R,k,m)
     M = Int64.(diagm(ones(k))).+0*t[1]
-    M = R.(hcat(M, reshape(t,k,m-k)))
+    N = MatrixSpace(R,m-k,k)
+    Q = transpose(reshape(t,m-k,k))
+    M = R.(hcat(M, Q))
     M = MS(M)
-    ϕ = minors(M,k);
+    ϕ =[]
+    for i=1:m-1
+        for j=i+1:m
+            push!(ϕ, det(M[:,[i,j]]))
+        end
+    end
     return R,ϕ,vrs,M
 end
+
 
 function leadexp(f,w)
     exps = collect(Oscar.exponents(f))
@@ -33,6 +41,8 @@ end
 k = 2
 m = 6
 R,ϕ,vrs,M = plückercoordinates(k,m,QQ);
+M
+ϕ 
 T , variable = PolynomialRing(QQ, vcat(["t$i" for i=1:8], "u" ) )
 u = variable[9]
 ι = hom(R,T,gens(T)[1:8])
@@ -91,11 +101,21 @@ end
 numerical_plücker = poly_to_fp(ϕ)
 XX = numerical_plücker.(gr_start_system) # 14 points in P^14
 
-I26 = grassmann_pluecker_ideal(2,6)
 
+I26 = grassmann_pluecker_ideal(2,6)
 numerical_plücker_rel = poly_to_fp(gens(I26))
 r = numerical_plücker_rel.(XX)
+r[4]
 
+####################
+#=
+S = gens(I26)[1].parent
+ev_pluecker_coord = hom(S, T, ϕ )
+#I26 = kernel(ev_pluecker_coord)
+ev_pluecker_coord.(gens(I26))
+gens(I26)
+=#
+###################
 
 #=
 
