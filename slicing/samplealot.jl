@@ -30,7 +30,6 @@ function plückercoordinates(k,m,K)
     return R,ϕ,vrs,M
 end
 
-
 function leadexp(f,w)
     exps = collect(Oscar.exponents(f))
     weights = [dot(w,e) for e in exps]
@@ -41,8 +40,6 @@ end
 k = 2
 m = 6
 R,ϕ,vrs,M = plückercoordinates(k,m,QQ);
-M
-ϕ 
 T , variable = PolynomialRing(QQ, vcat(["t$i" for i=1:8], "u" ) )
 u = variable[9]
 ι = hom(R,T,gens(T)[1:8])
@@ -81,13 +78,15 @@ HomotopyContinuation.write_solutions("Gr26_start_system.txt", grass_sol)
 ############
 
    
-gr_start_param = HomotopyContinuation.read_parameters("slicing/Gr26_start_parameters.txt")
-gr_start_system = HomotopyContinuation.read_solutions("slicing/Gr26_start_system.txt")
+gr_start_param = HomotopyContinuation.read_parameters("Gr26_start_parameters.txt")
+gr_start_system = HomotopyContinuation.read_solutions("Gr26_start_system.txt")
 
 A = reshape(gr_start_param[2:length(gr_start_param)], 8, 15) # This is the linear system whose solution are the Λ in P^14 
 B = LinearAlgebra.nullspace(A) # each column is an element of the basis of the space  Λ in P^14. The basis determines an isomorphism with P^6
 
-
+# input: a list of Oscar polynomials F 
+# the polynomials in F are converted into HomotopyContinuation F_HC
+# output: function evaluating the HomotopyContinuation polynomials in F_HC into a given input
 function poly_to_fp(F)
     n = Oscar.nvars(parent(F[1]))
     @var x_HC[1:n];
@@ -98,26 +97,21 @@ function poly_to_fp(F)
     return F_fp
 end
 
-numerical_plücker = poly_to_fp(ϕ)
-XX = numerical_plücker.(gr_start_system) # 14 points in P^14
 
+########################
+
+# Check that we have obtained points on the grassmannian by evaluating pluecker relations at those points
+#= 
+numerical_plücker = poly_to_fp(ϕ) 
+XX = numerical_plücker.(gr_start_system) # 14 points in P^14
 
 I26 = grassmann_pluecker_ideal(2,6)
 numerical_plücker_rel = poly_to_fp(gens(I26))
 r = numerical_plücker_rel.(XX)
-r[4]
-
-####################
-#=
-S = gens(I26)[1].parent
-ev_pluecker_coord = hom(S, T, ϕ )
-#I26 = kernel(ev_pluecker_coord)
-ev_pluecker_coord.(gens(I26))
-gens(I26)
+r[3] # is zero!
 =#
-###################
 
-#=
+########################
 
 println("Loading start parameters done!")
 
@@ -125,8 +119,8 @@ function uniform_Gr_point(a)
     return randn(length(a[:]))
 end
 
-N = parse(Int64, ARGS[1])
-#N = 1000000
+#N = parse(Int64, ARGS[1])
+N = 100
 counter = Dict(2*i => 0 for i=0:7)
 
 for i=1:N
@@ -136,7 +130,8 @@ for i=1:N
     counter[real_sols] += 1
 end
 
-file = open(ARGS[2], "w")
+file = open("test_count.txt", "w")
+#file = open(ARGS[2], "w")
 for i in 0:7
     write(file, string(counter[2*i]),"\n")
 end
