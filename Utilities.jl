@@ -112,4 +112,16 @@ function QQMatrix_to_ComplexF64(A)
 end
 
 
+function self_duality_control(Γ)
+   B = [ Γ[i,1]*Γ[j,1] for i=1:7 for j=i:7]
+   for h = 2:14
+    C = [ Γ[i,h]*Γ[j,h] for i=1:7 for j=i:7]
+    B = hcat(B,C)
+   end
+   B = QQMatrix_to_ComplexF64(B)
+   λ = diagm(nullspace(B)[:,1])
+   return λ
+end
+
+
 println("Include Utilities.jl done.")
