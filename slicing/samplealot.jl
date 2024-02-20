@@ -1,40 +1,7 @@
-using Oscar
-using LinearAlgebra
-using HomotopyContinuation
+include("Utilities.jl")
 
-println("Loading packages done!")
 
-function oscar_to_HC_Q(f,vars)
-    cffs = convert.(Rational{Int64},collect(Oscar.coefficients(f)))
-    exps = collect(Oscar.exponents(f))
-    sum([cffs[i]*prod(vars.^exps[i]) for i = 1:length(cffs)])
-end
 
-function plückercoordinates(k,m,K)
-    n=k*(m-k)
-    varstring = ["t$i" for i =1:n];
-    R, t = PolynomialRing(K, varstring)
-    vrs = t
-    MS = MatrixSpace(R,k,m)
-    M = Int64.(diagm(ones(k))).+0*t[1]
-    Q = transpose(reshape(t,m-k,k))
-    M = R.(hcat(M, Q))
-    M = MS(M)
-    ϕ =[]
-    for i=1:m-1
-        for j=i+1:m
-            push!(ϕ, det(M[:,[i,j]]))
-        end
-    end
-    return R,ϕ,vrs,M
-end
-
-function leadexp(f,w)
-    exps = collect(Oscar.exponents(f))
-    weights = [dot(w,e) for e in exps]
-    lm = argmin(weights)
-    exps[lm]
-end
 
 k = 2
 m = 6
@@ -86,15 +53,7 @@ B = LinearAlgebra.nullspace(A) # each column is an element of the basis of the s
 # input: a list of Oscar polynomials F 
 # the polynomials in F are converted into HomotopyContinuation F_HC
 # output: function evaluating the HomotopyContinuation polynomials in F_HC into a given input
-function poly_to_fp(F)
-    n = Oscar.nvars(parent(F[1]))
-    @var x_HC[1:n];
-    F_HC = System([oscar_to_HC_Q(f, x_HC) for f in F])
-    function F_fp(x)
-        return HomotopyContinuation.ModelKit.evaluate(F_HC, x)
-    end
-    return F_fp
-end
+
 
 
 ########################
