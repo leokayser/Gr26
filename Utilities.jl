@@ -34,6 +34,9 @@ function leadexp(f,w)
     exps[lm]
 end
 
+# input: a list of Oscar polynomials F 
+# the polynomials in F are converted into HomotopyContinuation F_HC
+# output: function evaluating the HomotopyContinuation polynomials in F_HC into a given input
 function poly_to_fp(F)
     n = Oscar.nvars(parent(F[1]))
     @var x_HC[1:n];
@@ -94,18 +97,7 @@ function max_independent_points(Γ)
     return ind
 end
 
-function normalize_SApoints(Γ)
-    ind = max_independent_points(Γ)
-    Γ = hcat(Γ[:,ind],Γ[:,deleteat!([i for i=1:14],ind)])
-    O = inv(Γ[:,1:7])*Γ[:,8:14]
-    Γnorm = diagm([1 for i=1:7])
-    for i = 1:7
-        v = O[:,i]
-        root = sqrt(transpose(v)*v)
-        Γnorm = hcat(Γnorm, (1/root)*v)
-    end
-    return Γnorm
-end
+
 
 function QQMatrix_to_ComplexF64(A)
     return ComplexF64.(Rational.(A))
@@ -118,10 +110,19 @@ function self_duality_control(Γ)
     C = [ Γ[i,h]*Γ[j,h] for i=1:7 for j=i:7]
     B = hcat(B,C)
    end
-   B = QQMatrix_to_ComplexF64(B)
    λ = diagm(nullspace(B)[:,1])
    return λ
 end
 
+function normalize_SApoints(Γ)
+    ind = max_independent_points(Γ)
+    Γ = hcat(Γ[:,ind],Γ[:,deleteat!([i for i=1:14],ind)])
+    λ = self_duality_control(Γ)
+    λ_normalizing = diagm(vcat([sqrt(λ[i,i]) for i=1:7],[sqrt(-λ[i,i]) for i=8:14]))
+    Γ_scaled = Γ * λ_normalizing
+    O = inv(Γ_scaled[:,1:7]) * Γ_scaled[:,8:14] 
+    Γnorm = hcat( diagm([1 for i=1:7]) , O )
+    return Γnorm
+end
 
 println("Include Utilities.jl done.")
