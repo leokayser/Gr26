@@ -1,5 +1,4 @@
-include("Utilities.jl")
-
+include("../Utilities.jl")
 
 
 
@@ -50,9 +49,6 @@ gr_start_system = HomotopyContinuation.read_solutions("Gr26_start_system.txt")
 A = reshape(gr_start_param[2:length(gr_start_param)], 8, 15) # This is the linear system whose solution are the Λ in P^14 
 B = LinearAlgebra.nullspace(A) # each column is an element of the basis of the space  Λ in P^14. The basis determines an isomorphism with P^6
 
-# input: a list of Oscar polynomials F 
-# the polynomials in F are converted into HomotopyContinuation F_HC
-# output: function evaluating the HomotopyContinuation polynomials in F_HC into a given input
 
 
 
