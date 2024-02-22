@@ -12,20 +12,24 @@ B = LinearAlgebra.nullspace(A) # each column is an element of the basis of the s
 
 
 numerical_plücker = poly_to_fp(ϕ) # Function that evaluates the polynomials in ϕ into the input
-Z = numerical_plücker.(gr_start_system); # 14 points in P^14
+Z = numerical_plücker.(gr_start_system) # 14 points in P^14
+Z_mat = reshape(vcat(Z...),15,14)
 
 Γ = reshape(hcat([B\z for z in Z]...),7,14)
 
 Γ_norm = normalize_SApoints(Γ)
-Γ_norm[:,8:14]*transpose(Γ_norm[:,8:14])
+Γ_norm[:,8:14]*transpose(Γ_norm[:,8:14]) # is the identity
 
 
+R1A =( transpose(Γ_norm) \ (Z_mat[1,:]) )
 
+A = transpose( hcat( [transpose(Γ_norm) \ (Z_mat[i,:])  for i=1:15]... ))
 
-
+A*Γ_norm - Z_mat
+Z_mat
 
 ####################
-
+#=
 G = QQMatrix_to_ComplexF64(randomSApoints(14))
 
 M1 = QQMatrix_to_ComplexF64(reshape(rand(49),7,7))
@@ -38,7 +42,7 @@ Cayley_orth_to_skew([:,8:14])
 S1 = Cayley_orth_to_skew(Γ_norm[:,8:14])
 
 S1 + transpose(S1)
-
-
-Γ = randomSApoints(14)
+=#
 ####################
+
+
