@@ -55,6 +55,29 @@ function Cayley_orth_to_skew(Q)
     return Sk    
 end
 
+function Cayley_skew_to_orth(Sk)
+    #I = identity_matrix(QQ,nrows(Sk))
+    I = diagm([1 for i=1:7])
+    Q =  (I+Sk)*inv(I-Sk)
+    return Q
+end
+
+
+function fake_Cayley_polynomial(n,vrs)
+    #m = n*(n-1)÷ 2
+    #R, vrs = RationalFunctionField(QQ,["a_$i" for i=1:m])
+    Sk = skew_matrix(vrs)
+    I = identity_matrix(QQ,n)
+    A = (I+Sk)
+    B = I-Sk
+    binv = [ (-1)^(i+j)*det(B[deleteat!(collect(1:n),i),deleteat!(collect(1:n),j)]) for i=1:n for j=1:n ]
+    #Binv = (1//(det(B))).*reshape( binv,n,n )
+    Binv = reshape( binv,n,n ) # no need to normalize once we are in P^6
+    Q = Matrix(A)*(Binv)
+    #Jac = [ derivative(Q[i,j], vrs[k]) for i=1:n for j=1:n for k=1:length(vrs) ]
+    return Q
+end
+
 
 function skew_matrix(a)
     U = strictly_upper_triangular_matrix(a)
@@ -122,7 +145,22 @@ function normalize_SApoints(Γ)
     Γ_scaled = Γ * λ_normalizing
     O = inv(Γ_scaled[:,1:7]) * Γ_scaled[:,8:14] 
     Γnorm = hcat( diagm([1 for i=1:7]) , O )
-    return Γnorm
+    return (Γnorm, Γ_scaled[:,1:7], λ_normalizing)
+end
+
+function proj_pts_eq(p,q)
+    return (rank(hcat(p,q)) <= 1)
+end
+
+function skew_to_vector(A)
+    n = ncols(A)
+    v = []
+    for i=1:n
+        for j=(i+1):n
+            push!(v, A[i,j])
+        end
+    end
+    return v
 end
 
 println("Include Utilities.jl done.")
