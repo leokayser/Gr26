@@ -1,7 +1,7 @@
 include("../Utilities.jl")
 
 function make_start()
-    R,ϕ,vrs,M = plückercoordinates(2,6,QQ)
+    _,ϕ,_,_ = plückercoordinates(2,6,QQ);
 
     gr_start_param = HomotopyContinuation.read_parameters("Gr26_start_parameters.txt")
     gr_start_system = HomotopyContinuation.read_solutions("Gr26_start_system.txt")
@@ -17,18 +17,21 @@ function make_start()
 
     Γ = reshape(hcat([φ\z for z in Z]...),7,14)
 
-    Γ_norm, A, λ_norm = normalize_SApoints(Γ)
+    Γ_norm, A, λ = normalize_SApoints(Γ)
 
-    norm(A*Γ_norm - Γ*λ_norm, Inf)
+    norm(A*Γ_norm - Γ*λ, Inf)
 
     φ_start = φ*A
 
-    norm(φ_start*Γ_norm - Z_mat*λ_norm, Inf)
+    norm(φ_start*Γ_norm - Z_mat*λ, Inf)
 
     proj_pts_eq((φ_start*Γ_norm)[:,8],Z[8])
 
-    S_start = Cayley_orth_to_skew(Γ_norm[:,8:14])
-    norm(Cayley_skew_to_orth(S_start) - Γ_norm[:,8:14])
+    O = Γ_norm[:,8:14]
+
+    S_start = cayley_num(O)
+    norm(cayley_num(S_start) - O, Inf)
+    skew_to_vector(S_start)
 
     return skew_to_vector(S_start), φ_start
 end

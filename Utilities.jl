@@ -47,7 +47,7 @@ function poly_to_fp(F)
     return F_fp
 end
 
-
+#=
 function Cayley_orth_to_skew(Q)
     #I = identity_matrix(QQ,nrows(Q))
     I = diagm([1 for i=1:7])
@@ -61,20 +61,22 @@ function Cayley_skew_to_orth(Sk)
     Q =  (I+Sk)*inv(I-Sk)
     return Q
 end
+=#
 
+function cayley_num(A)
+    return (I+A)\(I-A) # = (I+A)^-1*(I-A)
+end
 
 function fake_Cayley_polynomial(n,vrs)
     #m = n*(n-1)÷ 2
     #R, vrs = RationalFunctionField(QQ,["a_$i" for i=1:m])
     Sk = skew_matrix(vrs)
     I = identity_matrix(QQ,n)
-    A = (I+Sk)
-    B = I-Sk
-    binv = [ (-1)^(i+j)*det(B[deleteat!(collect(1:n),i),deleteat!(collect(1:n),j)]) for i=1:n for j=1:n ]
-    #Binv = (1//(det(B))).*reshape( binv,n,n )
-    Binv = reshape( binv,n,n ) # no need to normalize once we are in P^6
-    Q = Matrix(A)*(Binv)
-    #Jac = [ derivative(Q[i,j], vrs[k]) for i=1:n for j=1:n for k=1:length(vrs) ]
+    numerator   = I-Sk
+    denominator = I+Sk
+    adjunct = reshape( [ (-1)^(i+j)*det(denominator[deleteat!(collect(1:n),i),deleteat!(collect(1:n),j)]) for i=1:n for j=1:n ], n,n)
+    # no need to normalize once we are in P^6
+    Q = Matrix(numerator)*adjunct
     return Q
 end
 

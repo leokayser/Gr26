@@ -1,4 +1,4 @@
-include("../Utilities.jl")
+#include("../Utilities.jl")
 include("make_start_system.jl")
 
 S_start, φ_start = make_start();
@@ -17,7 +17,8 @@ s_t = t*S_start + (1-t)*s_target
 O_t = fake_Cayley_polynomial(7,s_oscar);
 
 # O -> \Gamma = [I_7 | O]
-Γ_oscar = hcat(Matrix(identity_matrix(S,7)), O_t )
+Γ_oscar = hcat(Matrix(identity_matrix(S,7)), O_t );
+Γ =  [oscar_to_HC_Q(Γ_oscar_entry, s) for Γ_oscar_entry in Γ_oscar];
 
 # a -> \varphi_a (using \varphi_start[1:12,:] from before)
 # Need to load \varphi_start from make_start_system
@@ -25,19 +26,19 @@ O_t = fake_Cayley_polynomial(7,s_oscar);
 φ_a = vcat(φ_start[1:12,:], a)
 
 # Z = \varphi_a * \Gamma
-Γ =  [oscar_to_HC_Q(Γ_oscar_entry, s) for Γ_oscar_entry in Γ_oscar];
 
 Z = φ_a * Γ;
 
 # p_1..15 = plücker relations
 Pluecker_rel = gens( grassmann_pluecker_ideal(2,6))
-sys
+
+plück_num = poly_to_fp(Pluecker_rel)
 
 # f = p_j(Z_i) for i=1..14, j=1..15
-system = hcat([poly_to_fp(Pluecker_rel)(Z[:,i]) for i=1:14]...);
+system = hcat([plück_num(Z[:,i]) for i=1:14]...);
 length(system) #210
 
-##########
+
 #C = System(system, variables = a, parameters = )
 
 
