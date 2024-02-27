@@ -5,9 +5,9 @@ export UnionSystem, union_system
 
 Documentation???
 """
-struct UnionSystem{S<:Vector{T} where T<:AbstractSystem} <: AbstractSystem
+struct UnionSystem <: AbstractSystem
     # The system is (f_1,...,f_r)
-    F::S
+    F::Vector{T} where T<:AbstractSystem
     num_eq::Int64
     parameters::Vector{Variable}
 end
@@ -61,7 +61,6 @@ function HomotopyContinuation.ModelKit.evaluate!(
 )
     offset = 0
     for f in US.F
-        print(f)
         l = size(f, 1)
         HomotopyContinuation.ModelKit.evaluate!(view(u, (offset+1):(offset+l)), f, x, p)
         offset += l
@@ -71,7 +70,7 @@ end
 function ModelKit.evaluate_and_jacobian!(u, U, US::UnionSystem, x, p = nothing)
     offset = 0
     for f in US.F
-        l= size(f,1)
+        l = size(f,1)
         HomotopyContinuation.ModelKit.evaluate_and_jacobian!(
             view(u, (offset[1]+1):(offset[1]+l)),
             view(U, (offset[1]+1):(offset[1]+l),:),
@@ -80,15 +79,19 @@ function ModelKit.evaluate_and_jacobian!(u, U, US::UnionSystem, x, p = nothing)
     end
 end
 
-#=
-_subTV(u, v::Val, l::int, r::int) = TaylorVector{v}(view(u.data, l:r, :))
 
-function ModelKit.taylor!(u, v::Val, US::UnionSystem, tx, p = nothing)
-    tu = _get_tu(C, v)
-    taylor!(tu, v, C.f, tx, p)
-    taylor!(u, v, C.g, tu, p)
+function ModelKit.taylor!(u, v::Val{1}, US::UnionSystem, tx, p = nothing)
+    offset = 0
+    for f in US.F
+        l = size(f,1)
+        vie = view(u, (offset[1]+1):(offset[1]+l))
+        tvv = TaylorVector{2}(vie)
+        HomotopyContinuation.ModelKit.taylor!(
+            tvv, v, f, tx, p)
+        offset += l
+    end
 end
-=#
+
 
 
 

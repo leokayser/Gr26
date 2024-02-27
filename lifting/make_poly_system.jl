@@ -4,8 +4,6 @@ include("union_system.jl")
 
 
 
-
-
 S_start, φ_start = make_start();
 
 
@@ -27,13 +25,12 @@ OO_t = fake_Cayley_polynomial(7,s_oscar);
 println("oscar_to_HC_Q:")
 Γ = []
 Γ_sys = []
-for i in 1:(length(Γ_oscar))
-    Base.vcat!(Γ, Γ, oscar_to_HC_Q(Γ_oscar[i], s))
+for i in 1:size(Γ_oscar, 2)
+    hc_polys = [oscar_to_HC_Q(f, s) for f in Γ_oscar[:,i]]
+    push!(Γ, hc_polys)
+    push!(Γ_sys, System([Γ[i];a], variables=a, parameters=s))
     println("$i/14 done.")
-
-    Base.vcat!(Γ_sys, Γ_sys, oscar_to_HC_Q(Γ_oscar[i], s))
 end
-Γ_sys = [System(vcat(Γ[:,i],a), variables=[s;a]) for i=1:14]
 
 # a -> φ_a (using φ_start[1:12,:] from before)
 
@@ -52,21 +49,19 @@ plück_oscar = gens( grassmann_pluecker_ideal(2,6))
 
 plück_sys = System([oscar_to_HC_Q(plück_oscar[i], p) for i=1:15], variables=p)
 
-plück_φ_sys = HomotopyContinuation.compose(plück_sys,φ_sys)  
-total_sys = [ HomotopyContinuation.compose(plück_φ_sys, Γ_sys[i]) for i=1:14  ]
+plück_φ_sys = plück_sys ∘ φ_sys
+sys_vector = Vector{AbstractSystem}()
+for i in eachindex(Γ_sys)
+    comp = plück_φ_sys ∘ Γ_sys[i]
+    push!(sys_vector, comp);
+    println("concat $i/14 done")
+end
 # total_sys is a vector of Systems. 
 # We need to concatenate all the equations in a unique system keeping the same 'a' variables and different 'x'
-F = union_systems(total_sys)
+F = union_system(sys_vector);
 
+a_start = reduce(vcat,φ_start[13:15,:])
 
+S_target = rand(ComplexF64,21)
 
-# f = p_j(Z_i) for i=1..14, j=1..15
-#total_sys = [HomotopyContinuation.compose(plück_sys, Z_sys[i]) for i=1:14];
-#length(system) #210
-
-
-
-C = System(system_hc, variables = a[1:21], parameters = s[1:21])
-
-
-##############
+result = HomotopyContinuation.solve(F, a_start; start_parameters=S_start, target_parameters=S_target)
