@@ -25,15 +25,25 @@ function make_start()
 
     norm(φ_start*Γ_norm - Z_mat*λ, Inf)
 
-    #proj_pts_eq((φ_start*Γ_norm)[:,8],Z[8])
-
     O = Γ_norm[:,8:14]
 
     S_start = cayley_num(O)
+
+    function simon(A)
+        return [I+A I-A]
+    end
+
+    Gamma = simon(S_start)
+    A2 = Gamma[:,1:7]
+    norm(inv(A2)*Gamma - Γ_norm, Inf)
+
+    phi = φ_start*inv(A2)
+    norm(phi*Gamma - Z_mat*λ, Inf)
+
     norm(cayley_num(S_start) - O, Inf)
     skew_to_vector(S_start)
 
-    return skew_to_vector(S_start), φ_start
+    return skew_to_vector(S_start), phi
 end
 
 

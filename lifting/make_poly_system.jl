@@ -61,7 +61,6 @@ Q_sys = System(Q, variables=[x;a])
 eqs = vcat([Q_sys([Γ[:,i];a]) for i in 1:14]...)
 
 final_sys = System(eqs, variables=a, parameters=s)
-final_sys(a_start,S_start)
 
 plück_φ_sys = plück_sys ∘ φ_sys
 sys_vector = Vector{AbstractSystem}()
@@ -74,10 +73,11 @@ end
 # We need to concatenate all the equations in a unique system keeping the same 'a' variables and different 'x'
 F = union_system(sys_vector);
 
-φ_start = φ_start*inv(I+A)
+#φ_start = φ_start*inv(I+A)
 a_start = reduce(vcat,φ_start[13:15,:])
 φ_start == vcat(φ_start[1:12,:], reshape(a_start,3,7))
+final_sys(a_start,S_start)
 
 S_target = rand(ComplexF64,21)
 
-result = HomotopyContinuation.solve(F, a_start; start_parameters=S_start, target_parameters=S_target)
+@time result = HomotopyContinuation.solve(final_sys, a_start; start_parameters=S_start, target_parameters=S_target)
