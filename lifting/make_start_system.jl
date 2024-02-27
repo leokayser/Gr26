@@ -25,7 +25,7 @@ function make_start()
 
     norm(φ_start*Γ_norm - Z_mat*λ, Inf)
 
-    proj_pts_eq((φ_start*Γ_norm)[:,8],Z[8])
+    #proj_pts_eq((φ_start*Γ_norm)[:,8],Z[8])
 
     O = Γ_norm[:,8:14]
 

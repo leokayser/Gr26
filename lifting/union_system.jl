@@ -10,6 +10,7 @@ struct UnionSystem <: AbstractSystem
     F::Vector{T} where T<:AbstractSystem
     num_eq::Int64
     parameters::Vector{Variable}
+    tu¹::Vector{TaylorVector{2,ComplexF64}}
 end
 function UnionSystem(F::Vector{T} where T<:AbstractSystem)
     num_eq = 0
@@ -33,8 +34,10 @@ function UnionSystem(F::Vector{T} where T<:AbstractSystem)
 
         pF = isempty(pFi) ? [pFi; pF] : pFi
     end
-        
-    UnionSystem(F, num_eq, pF)
+    
+    tu¹ = [TaylorVector{2}(ComplexF64, size(f, 1)) for f in F]
+
+    UnionSystem(F, num_eq, pF, tu¹)
 end
 
 Base.size(US::UnionSystem) = (US.num_eq, size(US.F[1], 2))
@@ -77,17 +80,23 @@ function ModelKit.evaluate_and_jacobian!(u, U, US::UnionSystem, x, p = nothing)
             f, x, p)
         offset += l
     end
+    nothing
 end
 
 
-function ModelKit.taylor!(u, v::Val{1}, US::UnionSystem, tx, p = nothing)
+function ModelKit.taylor!(u, v::Val{1}, US::UnionSystem, tx, p::TaylorVector{2})
     offset = 0
-    for f in US.F
-        l = size(f,1)
-        vie = view(u, (offset[1]+1):(offset[1]+l))
-        tvv = TaylorVector{2}(vie)
+    for i in eachindex(US.F)
+        f = US.F[i]
+        
+        println(US.tu¹[i])
         HomotopyContinuation.ModelKit.taylor!(
-            tvv, v, f, tx, p)
+            US.tu¹[i], v, f, tx, p)
+        println(US.tu¹[i])
+        println(u)
+
+        l = size(f,1)
+        u[offset+1:offset+l] = US.tu¹[i]
         offset += l
     end
 end
