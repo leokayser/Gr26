@@ -1,6 +1,5 @@
 #include("../Utilities.jl")
 include("make_start_system.jl")
-include("union_system.jl")
 
 
 
@@ -26,57 +25,29 @@ Smat = [oscar_to_HC_Q(m, s) for m in OscarSkewMat]
 
 
 
-# O -> Γ = [I_7 | O]
-Γ_oscar = hcat(Matrix(identity_matrix(S,7)), OO_t );
-println("oscar_to_HC_Q:")
-#Γ = []
-Γ_sys = []
-for i in 1:14
-    #hc_polys = [oscar_to_HC_Q(f, s) for f in Γ_oscar[:,i]]
-    #push!(Γ, hc_polys)
-    push!(Γ_sys, System([Γ[:,i];a], variables=a, parameters=s))
-    println("$i/14 done.")
-end
-
 # a -> φ_a (using φ_start[1:12,:] from before)
 
 φ_a = vcat(φ_start[1:12,:], reshape(a,3,7))
 φ_sys = System(φ_a*x, variables=[x;a])
 
 
-#Z_sys = [HomotopyContinuation.compose(φ_sys,Γ_sys[i]) for i=1:14];
-
-#Z = φ_a * Γ;
-
-#Z_sys = System(reshape(Z,210), variables=[s[:];a[:]]);
-
 # p_1..15 = plücker relations
 plück_oscar = gens( grassmann_pluecker_ideal(2,6))
 
 plück_sys = System([oscar_to_HC_Q(plück_oscar[i], p) for i=1:15], variables=p)
 
-Q = plück_sys(expressions(φ_sys))
+Q = plück_sys(expressions(φ_sys));
 
-Q_sys = System(Q, variables=[x;a])
-eqs = vcat([Q_sys([Γ[:,i];a]) for i in 1:14]...)
+Q_sys = System(Q, variables=[x;a]);
+eqs = vcat([Q_sys([Γ[:,i];a]) for i in 1:14]...);
 
-final_sys = System(eqs, variables=a, parameters=s)
+final_sys = System(eqs, variables=a, parameters=s);
 
-plück_φ_sys = plück_sys ∘ φ_sys
-sys_vector = Vector{AbstractSystem}()
-for i in eachindex(Γ_sys)
-    comp = plück_φ_sys ∘ Γ_sys[i]
-    push!(sys_vector, comp);
-    println("concat $i/14 done")
-end
-# total_sys is a vector of Systems. 
-# We need to concatenate all the equations in a unique system keeping the same 'a' variables and different 'x'
-F = union_system(sys_vector);
 
 #φ_start = φ_start*inv(I+A)
 a_start = reduce(vcat,φ_start[13:15,:])
-φ_start == vcat(φ_start[1:12,:], reshape(a_start,3,7))
-final_sys(a_start,S_start)
+#φ_start == vcat(φ_start[1:12,:], reshape(a_start,3,7))  # Sanity check
+# final_sys(a_start,S_start);                            # Also sanity check
 
 S_target = rand(ComplexF64,21)
 
