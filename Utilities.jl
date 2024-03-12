@@ -143,10 +143,17 @@ function normalize_SApoints(Γ)
     ind = max_independent_points(Γ)
     Γ = hcat(Γ[:,ind],Γ[:,deleteat!([i for i=1:14],ind)])
     λ = self_duality_control(Γ)
+    λ = -im* λ
     λ_normalizing = diagm(vcat([sqrt(λ[i,i]) for i=1:7],[sqrt(-λ[i,i]) for i=8:14]))
     Γ_scaled = Γ * λ_normalizing
-    O = inv(Γ_scaled[:,1:7]) * Γ_scaled[:,8:14] 
-    Γnorm = hcat( diagm([1 for i=1:7]) , O )
+    Or = inv(Γ_scaled[:,1:7]) * Γ_scaled[:,8:14] 
+    if rank(I+Or)<7
+        λ = -im* λ
+        λ_normalizing = diagm(vcat([sqrt(λ[i,i]) for i=1:7],[sqrt(-λ[i,i]) for i=8:14]))
+        Γ_scaled = Γ * λ_normalizing
+        Or = inv(Γ_scaled[:,1:7]) * Γ_scaled[:,8:14] 
+    end
+    Γnorm = hcat( diagm([1 for i=1:7]) , Or )
     return (Γnorm, Γ_scaled[:,1:7], λ_normalizing)
 end
 

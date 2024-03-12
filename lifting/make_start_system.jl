@@ -25,9 +25,9 @@ function make_start()
 
     norm(φ_start*Γ_norm - Z_mat*λ, Inf)
 
-    O = Γ_norm[:,8:14]
+    Or = Γ_norm[:,8:14]
 
-    S_start = cayley_num(O)
+    S_start = cayley_num(Or)
 
     function simon(A)
         return [I+A I-A]
@@ -40,7 +40,7 @@ function make_start()
     phi = φ_start*inv(A2)
     norm(phi*Gamma - Z_mat*λ, Inf)
 
-    norm(cayley_num(S_start) - O, Inf)
+    norm(cayley_num(S_start) - Or, Inf)
     skew_to_vector(S_start)
 
     return skew_to_vector(S_start), phi
