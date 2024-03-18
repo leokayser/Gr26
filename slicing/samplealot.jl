@@ -1,16 +1,16 @@
 include("../Utilities.jl")
 
 
-
 k = 2
 m = 6
 R,ϕ,vrs,M = plückercoordinates(k,m,QQ);
-T , variable = PolynomialRing(QQ, vcat(["t$i" for i=1:8], "u" ) )
+T, variable = PolynomialRing(QQ, vcat(["t$i" for i=1:8], "u" ) )
 u = variable[9]
 ι = hom(R,T,gens(T)[1:8])
 ϕ = ι.(ϕ)
 w = [-3;-2;-1;0;0;-1;-2;-3;0];
 
+#=
 terms = [ collect(Oscar.terms(ϕ[j])) for j in eachindex(ϕ) ]
 ϕu = [sum([ u^( transpose(w)*(leadexp(terms[j][i],w)-leadexp(ϕ[j],w) )) * terms[j][i]  for i=1:length(terms[j]) ]) for j=1:length(ϕ)]
 #l = 8
@@ -19,7 +19,8 @@ terms = [ collect(Oscar.terms(ϕ[j])) for j in eachindex(ϕ) ]
 @var x[1:9] a[1:8,1:15]
 vars_HC =  x[1:9] 
 ϕu_HC= [oscar_to_HC_Q(ϕu[i], vars_HC) for i=1:length(ϕu)]
-
+=#
+ϕu_HC = [toric_degen_poly_HC(ϕ[i],w) for i=1:15]
 Fu_HC = a*ϕu_HC #a are the linear forms cutting out a P^6 in P^14
 
 C = System(Fu_HC, variables = vars_HC[1:8], parameters = [vars_HC[9];a[:]])
