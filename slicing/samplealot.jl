@@ -20,7 +20,9 @@ terms = [ collect(Oscar.terms(ϕ[j])) for j in eachindex(ϕ) ]
 vars_HC =  x[1:9] 
 ϕu_HC= [oscar_to_HC_Q(ϕu[i], vars_HC) for i=1:length(ϕu)]
 =#
-ϕu_HC = [toric_degen_poly_HC(ϕ[i],w) for i=1:15]
+@var x[1:9] a[1:8,1:15]
+vars_HC =  x[1:9] 
+ϕu_HC = [toric_degen_poly_HC(ϕ[i],w,vars_HC) for i=1:15]
 Fu_HC = a*ϕu_HC #a are the linear forms cutting out a P^6 in P^14
 
 C = System(Fu_HC, variables = vars_HC[1:8], parameters = [vars_HC[9];a[:]])
