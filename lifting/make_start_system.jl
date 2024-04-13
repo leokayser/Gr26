@@ -7,7 +7,7 @@ function make_start()
     gr_start_system = HomotopyContinuation.read_solutions("Gr26_start_system.txt")
 
     A = reshape(gr_start_param[2:length(gr_start_param)], 8, 15) # This is the linear system whose solution are the Λ in P^14 
-    φ = LinearAlgebra.nullspace(A) # each column is an element of the basis of the space  Λ in P^14. The basis determines an isomorphism with P^6
+    L = LinearAlgebra.nullspace(A) # each column is an element of the basis of the space  Λ in P^14. The basis determines an isomorphism with P^6
     #B_normal_form = B*inv(B[1:7,:])
 
 
@@ -15,15 +15,15 @@ function make_start()
     Z = numerical_plücker.(gr_start_system) # 14 points in P^14
     Z_mat = reshape(vcat(Z...),15,14)
 
-    Γ = reshape(hcat([φ\z for z in Z]...),7,14)
+    Γ = reshape(hcat([L\z for z in Z]...),7,14)
 
     Γ_norm, A, λ = normalize_SApoints(Γ)
 
     norm(A*Γ_norm - Γ*λ, Inf)
 
-    φ_start = φ*A
+    L_start = L*A
 
-    norm(φ_start*Γ_norm - Z_mat*λ, Inf)
+    norm(L_start*Γ_norm - Z_mat*λ, Inf)
 
     Or = Γ_norm[:,8:14]
 
@@ -37,13 +37,13 @@ function make_start()
     A2 = Gamma[:,1:7]
     norm(inv(A2)*Gamma - Γ_norm, Inf)
 
-    phi = φ_start*inv(A2)
-    norm(phi*Gamma - Z_mat*λ, Inf)
+    L1 = L_start*inv(A2)
+    norm(L1*Gamma - Z_mat*λ, Inf)
 
     norm(cayley_num(S_start) - Or, Inf)
     skew_to_vector(S_start)
 
-    return skew_to_vector(S_start), phi
+    return skew_to_vector(S_start), L1
 end
 
 

@@ -3,13 +3,13 @@ include("make_start_system.jl")
 
 
 
-S_start, φ_start = make_start();
+S_start, L_start = make_start();
 
 
-@var a[1:21]
+@var l[1:21]
 @var s[1:21]
 @var x[1:7]
-@var p[1:15]
+@var q[1:15]
 
 S, s_oscar = PolynomialRing(QQ, ["s$i" for i=1:21])
 
@@ -25,30 +25,30 @@ Smat = [oscar_to_HC_Q(m, s) for m in OscarSkewMat]
 
 
 
-# a -> φ_a (using φ_start[1:12,:] from before)
+# L -> L_a (using L_start[1:12,:] from before)
 
-φ_a = vcat(φ_start[1:12,:], reshape(a,3,7))
-φ_sys = System(φ_a*x, variables=[x;a])
+L_l = vcat(L_start[1:12,:], reshape(l,3,7))
+L_sys = System(L_l*x, variables=[x;l])
 
 
-# p_1..15 = plücker relations
+# q_1..15 = plücker relations
 plück_oscar = gens( grassmann_pluecker_ideal(2,6))
 
-plück_sys = System([oscar_to_HC_Q(plück_oscar[i], p) for i=1:15], variables=p)
+plück_sys = System([oscar_to_HC_Q(plück_oscar[i], q) for i=1:15], variables=q)
 
-Q = plück_sys(expressions(φ_sys));
+Q = plück_sys(expressions(L_sys));
 
-Q_sys = System(Q, variables=[x;a]);
-eqs = vcat([Q_sys([Γ[:,i];a]) for i in 1:14]...);
+Q_sys = System(Q, variables=[x;l]);
+eqs = vcat([Q_sys([Γ[:,i];l]) for i in 1:14]...);
 
-final_sys = System(eqs, variables=a, parameters=s);
+final_sys = System(eqs, variables=l, parameters=s);
 
 
-#φ_start = φ_start*inv(I+A)
-a_start = reduce(vcat,φ_start[13:15,:])
-#φ_start == vcat(φ_start[1:12,:], reshape(a_start,3,7))  # Sanity check
-# final_sys(a_start,S_start);                            # Also sanity check
+#L_start = L_start*inv(I+A)
+l_start = reduce(vcat,L_start[13:15,:])
+#L_start == vcat(L_start[1:12,:], reshape(l_start,3,7))  # Sanity check
+# final_sys(l_start,S_start);                            # Also sanity check
 
 S_target = rand(ComplexF64,21)
 
-@time result = HomotopyContinuation.solve(final_sys, a_start; start_parameters=S_start, target_parameters=S_target)
+@time result = HomotopyContinuation.solve(final_sys, l_start; start_parameters=S_start, target_parameters=S_target)
