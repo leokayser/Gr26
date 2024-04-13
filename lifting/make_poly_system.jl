@@ -39,9 +39,9 @@ plück_sys = System([oscar_to_HC_Q(plück_oscar[i], q) for i=1:15], variables=q)
 Q = plück_sys(expressions(L_sys));
 
 Q_sys = System(Q, variables=[x;l]);
-eqs = vcat([Q_sys([Γ[:,i];l]) for i in 1:14]...);
+equations = vcat([Q_sys([Γ[:,i];l]) for i in 1:14]...);
 
-final_sys = System(eqs, variables=l, parameters=s);
+parameterized_system = System(equations, variables=l, parameters=s);
 
 
 #L_start = L_start*inv(I+A)
@@ -51,4 +51,4 @@ l_start = reduce(vcat,L_start[13:15,:])
 
 S_target = rand(ComplexF64,21)
 
-@time result = HomotopyContinuation.solve(final_sys, l_start; start_parameters=S_start, target_parameters=S_target)
+@time result = HomotopyContinuation.solve(parameterized_system, l_start; start_parameters=S_start, target_parameters=S_target)
