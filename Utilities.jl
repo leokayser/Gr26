@@ -11,9 +11,9 @@ end
 function plückercoordinates(k,m,K) # only works for k=2
     n=k*(m-k)
     varstring = ["t$i" for i =1:n];
-    R, t = PolynomialRing(K, varstring)
+    R, t = polynomial_ring(K, varstring)
     vrs = t
-    MS = MatrixSpace(R,k,m)
+    MS = matrix_space(R,k,m)
     M = Int64.(diagm(ones(k))).+0*t[1]
     Q = transpose(reshape(t,m-k,k))
     M = R.(hcat(M, Q))
@@ -36,7 +36,7 @@ end
 
 function toric_degen_poly_HC(f,w,vars_HC)
     terms = collect(Oscar.terms(f))
-    fu = sum([ u^( transpose(w)*(leadexp(terms[i],w)-leadexp(f,w) )) * terms[i]  for i=1:length(terms) ])
+    fu = sum([ u^( transpose(w)*(leadexp(terms[i],w)-leadexp(f,w) )) * terms[i]  for i in eachindex(terms) ])
     fu_HC= oscar_to_HC_Q(fu, vars_HC) 
     return fu_HC
 end

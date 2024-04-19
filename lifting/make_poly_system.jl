@@ -11,7 +11,7 @@ S_start, L_start = make_start();
 @var x[1:7]
 @var q[1:15]
 
-S, s_oscar = PolynomialRing(QQ, ["s$i" for i=1:21])
+S, s_oscar = polynomial_ring(QQ, ["s$i" for i=1:21])
 
 # s -> skew matrix
 #s_t = t*S_start + (1-t)*s_target
@@ -51,4 +51,4 @@ l_start = reduce(vcat,L_start[13:15,:])
 
 S_target = rand(ComplexF64,21)
 
-@time result = HomotopyContinuation.solve(parameterized_system, l_start; start_parameters=S_start, target_parameters=S_target)
+@time result = HomotopyContinuation.solve(parameterized_system, l_start; start_parameters=S_start, target_parameters=S_target, show_progress=false)
