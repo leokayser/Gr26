@@ -2,6 +2,14 @@ using Oscar
 using LinearAlgebra
 using HomotopyContinuation
 
+
+function leadexp(f,w)
+    exps = collect(Oscar.exponents(f))
+    weights = [dot(w,e) for e in exps]
+    lm = argmin(weights)
+    exps[lm]
+end
+
 function oscar_to_HC_Q(f,vars)
     cffs = convert.(Rational{Int64},collect(Oscar.coefficients(f)))
     exps = collect(Oscar.exponents(f))
@@ -27,14 +35,8 @@ function plückercoordinates(k,m,K) # only works for k=2
     return R,ϕ,vrs,M
 end
 
-function leadexp(f,w)
-    exps = collect(Oscar.exponents(f))
-    weights = [dot(w,e) for e in exps]
-    lm = argmin(weights)
-    exps[lm]
-end
 
-function toric_degen_poly_HC(f,w,vars_HC)
+function toric_degen_poly_HC(f,w,vars_HC,u)
     terms = collect(Oscar.terms(f))
     fu = sum([ u^( transpose(w)*(leadexp(terms[i],w)-leadexp(f,w) )) * terms[i]  for i in eachindex(terms) ])
     fu_HC= oscar_to_HC_Q(fu, vars_HC) 
@@ -95,7 +97,6 @@ function skew_matrix(a)
 end
 
 function randomSkmatrix(n)
-    #S = matrix_space(QQ,n,n)
     v = [ rand(-8:8)//1 for i=1:n*(n-1)/2]
     return skew_matrix(v)
 end
@@ -106,6 +107,7 @@ function randomSOmatrix(n)
     O = (I+Sk)^-1*(I-Sk)
     return O
 end
+
 
 
 function randomSApoints(s) # n is even, points are in P^(n/2)-1
@@ -129,7 +131,6 @@ function max_independent_points(Γ)
     end 
     return ind
 end
-
 
 
 function QQMatrix_to_ComplexF64(A)

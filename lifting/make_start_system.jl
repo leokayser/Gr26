@@ -1,21 +1,18 @@
 include(pwd()*"/Utilities.jl")
 
-function make_start()
+#function make_start()
     _,ϕ,_,_ = plückercoordinates(2,6,QQ);
 
-    gr_start_param = HomotopyContinuation.read_parameters("Gr26_start_parameters.txt")
-    gr_start_system = HomotopyContinuation.read_solutions("Gr26_start_system.txt")
+    a1_start = HomotopyContinuation.read_parameters("Gr26_start_parameters.txt")
+    start_sol = HomotopyContinuation.read_solutions("Gr26_start_system.txt")
 
-    A = reshape(gr_start_param[2:length(gr_start_param)], 8, 15) # This is the linear system whose solution are the Λ in P^14 
+    A = reshape(a1_start[2:length(a1_start)], 8, 15) # This is the linear system whose solution are the Λ in P^14 
     L = LinearAlgebra.nullspace(A) # each column is an element of the basis of the space  Λ in P^14. The basis determines an isomorphism with P^6
-    #B_normal_form = B*inv(B[1:7,:])
 
 
     numerical_plücker = poly_to_fp(ϕ) # Function that evaluates the polynomials in ϕ into the input
-    Z = numerical_plücker.(gr_start_system) # 14 points in P^14
-    Z_mat = reshape(vcat(Z...),15,14)
-
-    Γ = reshape(hcat([L\z for z in Z]...),7,14)
+    Z = reshape(vcat(numerical_plücker.(start_sol)...),15,14)
+    Γ = L\Z
 
     Γ_norm, A, λ = normalize_SApoints(Γ)
 
@@ -23,7 +20,7 @@ function make_start()
 
     L_start = L*A
 
-    norm(L_start*Γ_norm - Z_mat*λ, Inf)
+    norm(L_start*Γ_norm - Z*λ, Inf)
 
     Or = Γ_norm[:,8:14]
 
@@ -38,7 +35,7 @@ function make_start()
     norm(inv(A2)*Gamma - Γ_norm, Inf)
 
     L1 = L_start*inv(A2)
-    norm(L1*Gamma - Z_mat*λ, Inf)
+    norm(L1*Gamma - Z*λ, Inf)
 
     norm(cayley_num(S_start) - Or, Inf)
     skew_to_vector(S_start)

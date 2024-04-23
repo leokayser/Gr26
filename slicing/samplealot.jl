@@ -1,48 +1,43 @@
-include("Utilities.jl")
+include("../Utilities.jl")
 
 
-k = 2
-m = 6
-R,ϕ,vrs,M = plückercoordinates(k,m,QQ);
-T, variable = polynomial_ring(QQ, vcat(["t$i" for i=1:8], "u" ) )
-u = variable[9]
-ι = hom(R,T,gens(T)[1:8])
-ϕ = ι.(ϕ)
+R,p,_,_ = plückercoordinates(2,6,QQ);
+T,_ = polynomial_ring(QQ, vcat(["t$i" for i=1:8], "u" ) )
+#u = gens(T)[9]
+p = hom(R,T,gens(T)[1:8]).(p)
 w = [-3;-2;-1;0;0;-1;-2;-3;0];
 
-@var x[1:9] a[1:8,1:15]
-vars_HC =  x[1:9] 
-ϕu_HC = [toric_degen_poly_HC(ϕ[i],w,vars_HC) for i=1:15]
-Fu_HC = a*ϕu_HC #a are the linear forms cutting out a P^6 in P^14
-
-C = System(Fu_HC, variables = vars_HC[1:8], parameters = [vars_HC[9];a[:]])
+@var x[1:8] u a[1:8,1:15]
+pu_HC = [toric_degen_poly_HC(p[i],w,[x;u],gens(T)[9]) for i=1:15]
+F = a*pu_HC
+C = System(F, variables = x, parameters = [u;a[:]])
 
 println("Defining system done.")
 
-###########
+A_rand    = randn(ComplexF64, length(a))
 
-#=
-targ_par = [0;randn(ComplexF64, length(a[:]))]
-torus_result = HomotopyContinuation.solve(C, target_parameters = targ_par )
-torus_sol = solutions(torus_result);
+a0_start  = [0;A_rand]
+toric_sol = solutions(HomotopyContinuation.solve(C, target_parameters = a0_start))
 
-targ_par_new = [1;randn(ComplexF64, length(a[:]))]
-grass_result = HomotopyContinuation.solve(C, torus_sol; start_parameters = targ_par, target_parameters = targ_par_new)
-grass_sol = solutions(grass_result)
-HomotopyContinuation.write_parameters("Gr26_start_parameters.txt", targ_par_new)
-HomotopyContinuation.write_solutions("Gr26_start_system.txt", grass_sol)
-=#
+a1_start  = [1;A_rand]
+start_sol = solutions(HomotopyContinuation.solve(C, toric_sol;
+    start_parameters = a0_start, target_parameters = a1_start))
+
+# given A
+A    = randn(ComplexF64, length(a))
+a1_target = [1;A]
+X8_cap_A = solutions(HomotopyContinuation.solve(C, start_sol;
+    start_parameters = a1_start, target_parameters = a1_target))
+
+HomotopyContinuation.write_parameters("Gr26_start_parameters.txt", a1_start)
+HomotopyContinuation.write_solutions("Gr26_start_system.txt", start_sol)
+
 
 ############
 
    
-gr_start_param = HomotopyContinuation.read_parameters("Gr26_start_parameters.txt")
-gr_start_system = HomotopyContinuation.read_solutions("Gr26_start_system.txt")
-
-#A = reshape(gr_start_param[2:length(gr_start_param)], 8, 15) # This is the linear system whose solution are the Λ in P^14 
-#B = LinearAlgebra.nullspace(A) # each column is an element of the basis of the space  Λ in P^14. The basis determines an isomorphism with P^6
-
-
+a1_start = HomotopyContinuation.read_parameters("Gr26_start_parameters.txt")
+start_sol = HomotopyContinuation.read_solutions("Gr26_start_system.txt")
 
 
 ########################
