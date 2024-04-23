@@ -1,6 +1,6 @@
 include(pwd()*"/Utilities.jl")
 
-#function make_start()
+function make_start()
     _,ϕ,_,_ = plückercoordinates(2,6,QQ);
 
     a1_start = HomotopyContinuation.read_parameters("Gr26_start_parameters.txt")
