@@ -1,4 +1,5 @@
-include("make_start_system.jl")
+#include("make_start_system.jl")
+include("make_poly_system.jl")
 using Latexify
 
 #using Random
@@ -9,6 +10,7 @@ Gamma = [-7 8 7 -6 -4 -4 -6 -2 8 -6 8 4 -7 -5; -7 -2 5 -3 9 -1 7 2 0 1 1 -4 5 3;
 latexify(Gamma)
 
 Lambda = self_duality_control(Gamma)
+norm( Gamma*Lambda*transpose(Gamma), Inf)
 print([round(Lambda[i,i]/Lambda[1,1]) for i in 1:14])
 
 Gamma_norm, A, Lambda_scaling = normalize_SApoints(Gamma)
@@ -17,6 +19,8 @@ norm(A*Gamma_norm - Gamma*Lambda_scaling, Inf)
 P = Gamma_norm[:,8:14]
 S = cayley_num(P)
 
-TNF = [I+S I-S]
+Gamma_TNF = [I+S I-S]
 
-skew_to_vector(S)
+S_target = skew_to_vector(S)
+
+@time L_tilde = HomotopyContinuation.solve(parameterized_system, l_start; start_parameters=S_start, target_parameters=S_target, show_progress=false)

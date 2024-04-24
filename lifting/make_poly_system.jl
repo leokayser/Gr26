@@ -2,7 +2,6 @@
 include("make_start_system.jl")
 
 
-
 S_start, L_start = make_start();
 
 
@@ -49,6 +48,8 @@ l_start = reduce(vcat,L_start[13:15,:])
 #L_start == vcat(L_start[1:12,:], reshape(l_start,3,7))  # Sanity check
 # final_sys(l_start,S_start);                            # Also sanity check
 
-S_target = rand(ComplexF64,21)
 
-@time result = HomotopyContinuation.solve(parameterized_system, l_start; start_parameters=S_start, target_parameters=S_target, show_progress=false)
+
+#S_target = rand(ComplexF64,21)
+
+#@time result = HomotopyContinuation.solve(parameterized_system, l_start; start_parameters=S_start, target_parameters=S_target, show_progress=false)
