@@ -26,7 +26,9 @@ Smat = [oscar_to_HC_Q(m, s) for m in OscarSkewMat]
 
 # L -> L_a (using L_start[1:12,:] from before)
 
-L_l = vcat(L_start[1:12,:], reshape(l,3,7))
+A_rand = [randn(ComplexF64,15,7) for _ in eachindex(l) ]
+
+L_l = L_start + sum(l[i]*A_rand[i] for i in eachindex(l))
 L_sys = System(L_l*x, variables=[x;l])
 
 
@@ -40,16 +42,21 @@ Q = plück_sys(expressions(L_sys));
 Q_sys = System(Q, variables=[x;l]);
 equations = vcat([Q_sys([Γ[:,i];l]) for i in 1:14]...);
 
+
 parameterized_system = System(equations, variables=l, parameters=s);
 
 
-#L_start = L_start*inv(I+A)
-l_start = reduce(vcat,L_start[13:15,:])
-#L_start == vcat(L_start[1:12,:], reshape(l_start,3,7))  # Sanity check
-# final_sys(l_start,S_start);                            # Also sanity check
+l_start = zeros(ComplexF64,21)
+#parameterized_system(l_start,S_start)   # Also sanity check
 
+R = RandomizedSystem(parameterized_system, 21);
 
+S_target = rand(ComplexF64,21)
 
-#S_target = rand(ComplexF64,21)
+println("Starting solve")
 
-#@time result = HomotopyContinuation.solve(parameterized_system, l_start; start_parameters=S_start, target_parameters=S_target, show_progress=false)
+@time result = HomotopyContinuation.solve(R, l_start; start_parameters=S_start, target_parameters=S_target)
+
+result.path_results
+
+norm(parameterized_system(solutions(result)[1], S_target), Inf)
