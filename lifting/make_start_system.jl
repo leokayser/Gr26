@@ -16,11 +16,11 @@ function make_start()
 
     Γ_norm, A, λ = normalize_SApoints(Γ)
 
-    norm(A*Γ_norm - Γ*λ, Inf)
+    #norm(A*Γ_norm - Γ*λ, Inf)
 
     L_start = L*A
 
-    norm(L_start*Γ_norm - Z*λ, Inf)
+    #norm(L_start*Γ_norm - Z*λ, Inf)
 
     Or = Γ_norm[:,8:14]
 
@@ -32,12 +32,12 @@ function make_start()
 
     Gamma = simon(S_start)
     A2 = Gamma[:,1:7]
-    norm(inv(A2)*Gamma - Γ_norm, Inf)
+    #norm(inv(A2)*Gamma - Γ_norm, Inf)
 
     L1 = L_start*inv(A2)
-    norm(L1*Gamma - Z*λ, Inf)
+    #norm(L1*Gamma - Z*λ, Inf)
 
-    norm(cayley_num(S_start) - Or, Inf)
+    #norm(cayley_num(S_start) - Or, Inf)
     skew_to_vector(S_start)
 
     return skew_to_vector(S_start), L1

@@ -144,7 +144,7 @@ function self_duality_control(Γ)
     C = [ Γ[i,h]*Γ[j,h] for i=1:7 for j=i:7]
     B = hcat(B,C)
    end
-   print(nullspace(B))
+   #print(nullspace(B))
    λ = diagm(nullspace(B)[:,1])
    return λ
 end
