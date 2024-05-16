@@ -39,9 +39,11 @@ latexify(Gamma_TNF)
 
 S_target = skew_to_vector(S)
 
-@time result = HomotopyContinuation.solve(parameterized_system, l_start; start_parameters=S_start, target_parameters=S_target)
+@time result = HomotopyContinuation.solve(parametrized_system, l_start; compile = false, start_parameters=S_start, target_parameters=S_target)
 #L_tilde = vcat(L_start[1:12,:], reshape(solutions(result)[1],3,7))
 #print(latexify(round.(L_tilde, digits=3)))
+result.path_results
+
 sol = solutions(result)[1]
 parameterized_system(sol,S_target)
 parameterized_system(l_start,S_start)

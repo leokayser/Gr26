@@ -32,7 +32,7 @@ function make_start()
 
     Gamma = simon(S_start)
     A2 = Gamma[:,1:7]
-    #norm(inv(A2)*Gamma - Γ_norm, Inf)
+    norm(inv(A2)*Gamma - Γ_norm, Inf)
 
     L1 = L_start*inv(A2)
     #norm(L1*Gamma - Z*λ, Inf)

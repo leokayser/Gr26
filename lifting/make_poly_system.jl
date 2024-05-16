@@ -20,23 +20,19 @@ Smat = [oscar_to_HC_Q(m, s) for m in OscarSkewMat]
 
 Γ = [I+Smat I-Smat]
 
-
-
 # L -> L_a (using L_start[1:12,:] from before)
 
 A_rand = [randn(ComplexF64,15,7) for _ in eachindex(l) ];
-
 L_l = L_start + sum(l[i]*A_rand[i] for i in eachindex(l));
 
+
 #indices = vcat([[i,1] for i in 2:15],[[i,2] for i in 2:9])
+#indices = vcat([[i,1] for i in 2:15],[[i,j]  for j = 2:4  for i in 1:15], [[i,5] for i=1:10 ]  )
 
 #L_l = Matrix{Any}(copy(L_start));
 #for i in eachindex(l)
 #    L_l[indices[i]...] = l[i]
 #end
-
-
-
 
 L_sys = System(L_l*x, variables=[x;l]);
 
@@ -59,7 +55,8 @@ parametrized_system = System(equations, variables=l, parameters=s);
 l_start = zeros(ComplexF64,length(l))
 parametrized_system(l_start,S_start)   # Also sanity check
 
-#R = RandomizedSystem(parameterized_system, 21);
+#@time R = RandomizedSystem(parametrized_system, 69);
+#18473.318498 seconds (45.75 M allocations: 36.230 GiB, 0.23% gc time, 0.01% compilation time)
 
 S_target = randn(ComplexF64,21)
 
@@ -75,9 +72,38 @@ println("Starting solve")
 #@time result = HomotopyContinuation.solve(R, l_start; start_parameters=S_start, target_parameters=S_target)
 @time result = HomotopyContinuation.solve(
     parametrized_system, l_start; start_parameters=S_start,
-    target_parameters=S_target, compile = false, show_progress = true)
+    target_parameters=S_target, show_progress = true)
 
+
+#=
+4771.640128 seconds (85.71 M allocations: 38.527 GiB, 0.08% gc time, 0.59% compilation time: <1% of which was recompilation)
+Result with 1 solution
+======================
+• 1 path tracked
+• 1 non-singular solution (0 real)
+• random_seed: 0xeee98a5a
+=#
 result.path_results
-sol = solution(result[1])
+#=
+1-element Vector{PathResult}:
+ PathResult:
+ • return_code → :success
+ • solution → ComplexF64[-0.0592647754972386 + 0.7751087101315427im, -1.7725139883174452 + 0.23733801775977859im, -0.6460917178956368 + 0.10523009851410838im, -0.9342263367081752 + 0.6313277892169233im, 0.4991449361209814 + 0.5223585099896476im, -0.4030060846550946 + 1.0374715506460088im, 1.081979675428538 + 0.5907240719502352im, 0.5278479103606262 - 0.4934902432254344im, -0.25943321062084385 - 0.8441368086234682im, 0.6755946779669075 + 1.120391351798026im  …  0.1420331587427683 - 0.3215220677270636im, -0.8928647863133135 - 0.147063960980485im, 1.5657473829774033 - 0.5284368395846664im, -0.0031015347784415794 - 0.36794536804961264im, -1.1787553750331534 + 0.05393862147165947im, 0.5848935991138667 + 2.1717731026111977im, -0.701832739037763 + 0.5303619182739485im, -0.78366687719798 - 0.40826844654642896im, 1.0682398376061473 - 0.8145841536433973im, -0.4798529181072345 + 0.36161477022425537im]
+ • accuracy → 9.2352e-17
+ • residual → 4.0194e-13
+ • condition_jacobian → 201.79
+ • steps → 1412 / 0
+ • extended_precision → false
+ • path_number → 1
+ =#
 
-norm(parametrized_system(rand(ComplexF64,21), S_target), Inf)
+#sol = solution(result[1])
+
+#norm(parametrized_system(sol, S_target), Inf)
+
+#=
+65095.298221 seconds 
+(4.79 G allocations: 316.377 GiB, 0.17% gc time, 81.32% compilation time: <1% of which was recompilation)
+ 1 path tracked
+• 1 non-singular solution (0 real)
+• random_seed: 0x99b4a657
