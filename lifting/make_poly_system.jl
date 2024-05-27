@@ -1,9 +1,7 @@
 #include("../Utilities.jl")
 include("make_start_system.jl")
 
-
 S_start, L_start = make_start();
-
 
 @var l[1:69]
 @var s[1:21]
@@ -13,26 +11,18 @@ S_start, L_start = make_start();
 S, s_oscar = polynomial_ring(QQ, ["s$i" for i=1:21])
 
 # s -> skew matrix
-#s_t = t*S_start + (1-t)*s_target
 
 OscarSkewMat = skew_matrix(s_oscar)
 Smat = [oscar_to_HC_Q(m, s) for m in OscarSkewMat]
 
 Γ = [I+Smat I-Smat]
 
-# L -> L_a (using L_start[1:12,:] from before)
+#A_rand = [randn(ComplexF64,15,7) for _ in eachindex(l) ];
+#JLD.save("Random_matrices.jld", "data", A_rand )
+using JLD
+A_rand = JLD.load("Random_matrices.jld")["data"];  
 
-A_rand = [randn(ComplexF64,15,7) for _ in eachindex(l) ];
 L_l = L_start + sum(l[i]*A_rand[i] for i in eachindex(l));
-
-
-#indices = vcat([[i,1] for i in 2:15],[[i,2] for i in 2:9])
-#indices = vcat([[i,1] for i in 2:15],[[i,j]  for j = 2:4  for i in 1:15], [[i,5] for i=1:10 ]  )
-
-#L_l = Matrix{Any}(copy(L_start));
-#for i in eachindex(l)
-#    L_l[indices[i]...] = l[i]
-#end
 
 L_sys = System(L_l*x, variables=[x;l]);
 
@@ -50,17 +40,16 @@ equations = vcat([Q_sys([Γ[:,i];l]) for i in 1:14]...);
 
 parametrized_system = System(equations, variables=l, parameters=s);
 
-#l_start = [L_start[indices[i]...] for i in eachindex(l)]
-
 l_start = zeros(ComplexF64,length(l))
 parametrized_system(l_start,S_start)   # Also sanity check
 
 #@time R = RandomizedSystem(parametrized_system, 69);
 #18473.318498 seconds (45.75 M allocations: 36.230 GiB, 0.23% gc time, 0.01% compilation time)
 
+#=
 S_target = randn(ComplexF64,21)
 
-#=
+
 tnf_homotopy = parameter_homotopy(InterpretedSystem(parametrized_system);
     start_parameters = S_start, target_parameters = S_target);
 tracker = Tracker(tnf_homotopy; options = TrackerOptions(parameters = FAST_TRACKER_PARAMETERS) )
@@ -70,21 +59,21 @@ result = track.(tracker, [l_start])
 println("Starting solve")
 
 #@time result = HomotopyContinuation.solve(R, l_start; start_parameters=S_start, target_parameters=S_target)
+#=
+
 @time result = HomotopyContinuation.solve(
     parametrized_system, l_start; start_parameters=S_start,
     target_parameters=S_target, show_progress = true)
 
-
-#=
 4771.640128 seconds (85.71 M allocations: 38.527 GiB, 0.08% gc time, 0.59% compilation time: <1% of which was recompilation)
 Result with 1 solution
 ======================
 • 1 path tracked
 • 1 non-singular solution (0 real)
-• random_seed: 0xeee98a5a
-=#
+• random_seesd: 0xeee98a5a
+
 result.path_results
-#=
+
 1-element Vector{PathResult}:
  PathResult:
  • return_code → :success
@@ -95,15 +84,9 @@ result.path_results
  • steps → 1412 / 0
  • extended_precision → false
  • path_number → 1
+
+
+sol = solution(result[1])
+
+norm(parametrized_system(sol, S_target), Inf)
  =#
-
-#sol = solution(result[1])
-
-#norm(parametrized_system(sol, S_target), Inf)
-
-#=
-65095.298221 seconds 
-(4.79 G allocations: 316.377 GiB, 0.17% gc time, 81.32% compilation time: <1% of which was recompilation)
- 1 path tracked
-• 1 non-singular solution (0 real)
-• random_seed: 0x99b4a657

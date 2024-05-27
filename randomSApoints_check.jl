@@ -1,13 +1,13 @@
 ## Do we need this? This is obsolete, right?
 
 using DelimitedFiles
-Γ = randomSApoints(14)
 
 using Pkg
 Pkg.add("JLD")
 using JLD
-JLD.save("data.jld", "data", Γ)
-JLD.load("data.jld")["data"] == Γ
+JLD.save("data.jld", "data",A_rand )
+
+A_test = JLD.load("data.jld")["data"]  
 
 
 function normalize_SApoints(Γ)

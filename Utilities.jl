@@ -1,7 +1,8 @@
 using Oscar
 using LinearAlgebra
 using HomotopyContinuation
-
+using DelimitedFiles
+using JLD
 
 function leadexp(f,w)
     exps = collect(Oscar.exponents(f))
