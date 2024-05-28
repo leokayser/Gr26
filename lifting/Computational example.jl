@@ -30,7 +30,7 @@ S_target = skew_to_vector(S)
 sol = solutions(result)[1]
 L_tilde = L_start + sum(sol[i]*A_rand[i] for i in eachindex(l))
 
-L = L_tilde*(I+S)*inv(A)
+
 print(latexify(round.(L_tilde, digits=3)))
 
 #6077.931045 seconds 
@@ -48,3 +48,7 @@ sol = solutions(result)[1]
 parameterized_system(sol,S_target)
 parameterized_system(l_start,S_start)
 result
+
+L = L_tilde*(I+S)*inv(A)
+q = poly_to_fp(plück_oscar)
+maximum([ norm(q(L*Gamma[:,i]) ,Inf) for i =1:14])
