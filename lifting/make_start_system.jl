@@ -25,11 +25,7 @@ function make_start()
     Or = Γ_norm[:,8:14]
 
     S_start = cayley_num(Or)
-
-    function simon(A)
-        return [I+A I-A]
-    end
-
+  
     Gamma = simon(S_start)
     A2 = Gamma[:,1:7]
     norm(inv(A2)*Gamma - Γ_norm, Inf)
