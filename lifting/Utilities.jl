@@ -251,46 +251,4 @@ function skew_to_vector(A)
     return v
 end
 
-
-
-
-############# THIS IS OLD #######################
-#=
-function Cayley_orth_to_skew(Q)
-    #I = identity_matrix(QQ,nrows(Q))
-    I = diagm([1 for i=1:7])
-    Sk = inv(Q+I)*(Q-I)
-    return Sk    
-end
-
-function Cayley_skew_to_orth(Sk)
-    #I = identity_matrix(QQ,nrows(Sk))
-    I = diagm([1 for i=1:7])
-    Q =  (I+Sk)*inv(I-Sk)
-    return Q
-end
-
-
-# Compute the Cayley transform of a matrix of variables scaled by the determinant 
-# -------------  Input:
-# n            an integer, the size of the matrix
-# vrs          n variables
-# -------------  Output:
-# Q            the Cayley transform of the skew-symmetric matrix with entries in vrs
-function fake_Cayley_polynomial(n,vrs)
-    #m = n*(n-1)÷ 2
-    #R, vrs = RationalFunctionField(QQ,["a_$i" for i=1:m])
-    Sk = skew_matrix(vrs)
-    I = identity_matrix(QQ,n)
-    numerator   = I-Sk
-    denominator = I+Sk
-    adjunct = reshape( [ (-1)^(i+j)*det(denominator[deleteat!(collect(1:n),i),deleteat!(collect(1:n),j)]) for i=1:n for j=1:n ], n,n)
-    # no need to normalize once we are in P^6
-    Q = Matrix(numerator)*adjunct
-    return Q
-end
-=#
-################################
-
-
 println("Include Utilities.jl done.")
