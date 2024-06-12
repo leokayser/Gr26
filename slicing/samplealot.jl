@@ -3,7 +3,6 @@ include("../Utilities.jl")
 
 R,p,_,_ = plückercoordinates(2,6,QQ);
 T,_ = polynomial_ring(QQ, vcat(["t$i" for i=1:8], "u" ) )
-#u = gens(T)[9]
 p = hom(R,T,gens(T)[1:8]).(p)
 w = [-3;-2;-1;0;0;-1;-2;-3;0];
 
@@ -43,8 +42,6 @@ start_sol = HomotopyContinuation.read_solutions("Gr26_start_system.txt")
 ########################
 
 # Check that we have obtained points on the grassmannian by evaluating pluecker relations at those points
- 
-
 #numerical_plücker = poly_to_fp(ϕ) 
 #Z = numerical_plücker.(gr_start_system) # 14 points in P^14
 

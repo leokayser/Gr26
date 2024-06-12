@@ -28,10 +28,10 @@ S_target = skew_to_vector(S)
 
 @time result = HomotopyContinuation.solve(parametrized_system, l_start; compile = false, start_parameters=S_start, target_parameters=S_target)
 sol = solutions(result)[1]
-L_tilde = L_start + sum(sol[i]*A_rand[i] for i in eachindex(l))
+L_hat = L_start + sum(sol[i]*A_rand[i] for i in eachindex(l))
 
 
-print(latexify(round.(L_tilde, digits=3)))
+print(latexify(round.(L_hat, digits=3)))
 
 #6077.931045 seconds 
 
@@ -49,6 +49,6 @@ parameterized_system(sol,S_target)
 parameterized_system(l_start,S_start)
 result
 
-L = L_tilde*(I+S)*inv(A)
+L = L_hat*(I+S)*inv(A)
 q = poly_to_fp(plück_oscar)
 maximum([ norm(q(L*Gamma[:,i]) ,Inf) for i =1:14])
