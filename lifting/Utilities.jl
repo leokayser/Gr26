@@ -100,12 +100,12 @@ function cayley_num(A)
 end
 
 
-# Compute Telen form of A 
+# Compute skew normal form of A 
 # -------------  Input:
 # A            a matrix
 # -------------  Output:
 #              a matrix
-function simon(A)
+function skew_normal_form(A)
     return [I+A I-A]
 end
 
@@ -221,8 +221,8 @@ function normalize_SApoints(Γ)
         Γ_scaled = Γ * λ_normalizing
         Or = inv(Γ_scaled[:,1:7]) * Γ_scaled[:,8:14] 
     end=#
-    Γnorm = hcat( Diagonal([1 for i=1:7]) , Or )
-    return (Γnorm, Γ_scaled[:,1:7], λ_normalizing)
+    Γ_ONF = hcat( Diagonal([1 for i=1:7]) , Or )
+    return (Γ_ONF, Γ_scaled[:,1:7], λ_normalizing)
 end
 
 # Control if two points are projectively equivalent
