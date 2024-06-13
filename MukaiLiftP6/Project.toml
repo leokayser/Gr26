@@ -1,0 +1,12 @@
+name = "MukaiLiftP6"
+uuid = "91bf846c-b51e-4cd8-bdc3-2cf2c4816214"
+authors = ["Barbara Betti <barbarabetti98@libero.it>"]
+version = "0.1.0"
+
+[deps]
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+HomotopyContinuation = "f213a82b-91d6-5c5d-acf7-10f1c761b327"
+JLD = "4138dd39-2aa7-5051-a626-17a0bb65d9c8"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Oscar = "f1435218-dba5-11e9-1e4d-f1a5fab5fc13"
+PkgTemplates = "14b8a8f1-9102-5b29-a752-f990bacb7fe1"
