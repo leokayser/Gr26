@@ -1,4 +1,8 @@
-# pkg> activate MukaiLiftP6
+cd(splitdir(pwd())[1]) 
+
+using Pkg;
+Pkg.activate("MukaiLiftP6")
+
 using Oscar
 using LinearAlgebra
 using HomotopyContinuation

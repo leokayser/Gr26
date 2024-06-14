@@ -16,7 +16,7 @@ F = a*pu_HC
 C = System(F, variables = x, parameters = [u;a[:]])
 
 println("Defining system done.")
-
+#=
 A_rand    = randn(ComplexF64, length(a))
 
 a0_start  = [0;A_rand]
@@ -34,9 +34,8 @@ X8_cap_A = solutions(HomotopyContinuation.solve(C, start_sol;
 
 HomotopyContinuation.write_parameters("Gr26_start_parameters.txt", a1_start)
 HomotopyContinuation.write_solutions("Gr26_start_system.txt", start_sol)
+=#
 
-
-############
 
    
 a1_start = HomotopyContinuation.read_parameters("MukaiLiftP6/src/Gr26_start_parameters.txt")

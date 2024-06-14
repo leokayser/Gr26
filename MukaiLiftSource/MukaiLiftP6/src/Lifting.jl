@@ -5,8 +5,8 @@
 function make_start()
     _,ϕ,_,_ = plückercoordinates(6,QQ);
 
-    a1_start = HomotopyContinuation.read_parameters("Gr26_start_parameters.txt")
-    start_sol = HomotopyContinuation.read_solutions("Gr26_start_system.txt")
+    a1_start = HomotopyContinuation.read_parameters("MukaiLiftP6/src/Gr26_start_parameters.txt")
+    start_sol = HomotopyContinuation.read_solutions("MukaiLiftP6/src/Gr26_start_system.txt")
 
     # A is the linear system whose solutions form a linear subspace L∼P^6 in P^14 
     A = reshape(a1_start[2:length(a1_start)], 8, 15) 
@@ -17,7 +17,7 @@ function make_start()
     
     # Γ is the set of self-dual points embedded in L 
     Γ = L\Z
-    Γ_ONF, A, λ = normalize_SApoints(Γ)
+    Γ_ONF, A, λ = orthogonal_normal_form(Γ)
     
     @assert(norm(A*Γ_ONF - Γ*λ, Inf) < 1e-10)
 
@@ -29,7 +29,7 @@ function make_start()
 
     S_start = cayley(Or)
   
-    Gamma = skew_normal_form(S_start)
+    Gamma = skew_to_SNF(S_start)
     A2 = Gamma[:,1:7]
     
     #norm(inv(A2)*Gamma - Γ_ONF, Inf)
@@ -61,7 +61,12 @@ function make_poly_system(S_start, L_start)
     Smat = [oscar_to_HC_Q(m, s) for m in OscarSkewMat]
     Γ = [I+Smat I-Smat]
 
-    A_rand = JLD.load("Random_matrices.jld")["data"];  
+    ######## To create different random matrices  ########
+    #A_rand = [randn(ComplexF64,15,7) for _ in eachindex(l) ];
+    #JLD.save("MukaiLiftP6/src/Random_matrices.jld", "data", A_rand )
+    ######################################################
+
+    A_rand = JLD.load("MukaiLiftP6/src/Random_matrices.jld")["data"];  
 
     L_l = L_start + sum(l[i]*A_rand[i] for i in eachindex(l));
     L_sys = System(L_l*x, variables=[x;l]);
@@ -78,5 +83,5 @@ function make_poly_system(S_start, L_start)
 
     l_start = zeros(ComplexF64,length(l))
 
-    return parametrized_system, l_start
+    return parametrized_system, l_start, A_rand
 end
