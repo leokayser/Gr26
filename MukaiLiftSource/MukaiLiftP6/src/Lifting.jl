@@ -17,27 +17,30 @@ function make_start()
     
     # Γ is the set of self-dual points embedded in L 
     Γ = L\Z
-    Γ_ONF, A, λ = orthogonal_normal_form(Γ)
-    
+
+
+    Γ_ONF, A, λ = orthogonal_normal_form(Γ)  
+
     @assert(norm(A*Γ_ONF - Γ*λ, Inf) < 1e-10)
+    norm(A*Γ_ONF - Γ*λ, Inf)
 
     L_start = L*A
     
-    #norm(L_start*Γ_ONF - Z*λ, Inf)
+    norm(L_start*Γ_ONF - Z*λ, Inf)
 
     Or = Γ_ONF[:,8:14]
-
+    eigenvalues(Or)
     S_start = cayley(Or)
-  
+
     Gamma = skew_to_SNF(S_start)
     A2 = Gamma[:,1:7]
     
-    #norm(inv(A2)*Gamma - Γ_ONF, Inf)
+    norm(inv(A2)*Gamma - Γ_ONF, Inf)
 
     L1 = L_start*inv(A2) 
 
-    #norm(L1*Gamma - Z*λ, Inf)
-    #norm(cayley(S_start) - Or, Inf)
+    norm(L1*Gamma - Z*λ, Inf)
+    norm(cayley(S_start) - Or, Inf)
     
     skew_to_vector(S_start)
 

@@ -175,21 +175,16 @@ end
 # Γ_scaled[1:7]    the first 7 columns of a scaled form of Γ such that certify_selfdual(Γ_scaled)=I⊕(-I) 
 # λ_normalizing    a scaling 14x14 matrix such that Γ_scaled= Γ*λ_normalizing
 function orthogonal_normal_form(Γ)
-    ind = max_independent_points(Γ)
-    Γ = hcat(Γ[:,ind],Γ[:,deleteat!([i for i=1:14],ind)])
-    λ = certify_selfdual(Γ)
-    #λ = -im* λ # WHY IS THIS HERE???
-    λ_normalizing = diagm(vcat([sqrt(Complex(λ[i,i])) for i=1:7],[sqrt(Complex(-λ[i,i])) for i=8:14]))
+    #ind = max_independent_points(Γ)
+    #Γ = hcat(Γ[:,ind],Γ[:,deleteat!([i for i=1:14],ind)])
+    λ_init = certify_selfdual(Γ)
+    λ_normalizing = diagm(vcat([sqrt(Complex(λ_init[i,i])) for i=1:7],[sqrt(Complex(-λ_init[i,i])) for i=8:14]))
     Γ_scaled = Γ * λ_normalizing
     Or = inv(Γ_scaled[:,1:7]) * Γ_scaled[:,8:14] 
-    #=if rank(I+Or)<7 # TODO: rework
-        λ = -im* λ
-        λ_normalizing = diagm(vcat([sqrt(λ[i,i]) for i=1:7],[sqrt(-λ[i,i]) for i=8:14]))
-        Γ_scaled = Γ * λ_normalizing
-        Or = inv(Γ_scaled[:,1:7]) * Γ_scaled[:,8:14] 
-    end=#
-    Γ_ONF = hcat( Diagonal([1 for i=1:7]) , Or )
-    return (Γ_ONF, Γ_scaled[:,1:7], λ_normalizing)
+    #inv(I+Or)
+    Γ_ONF = hcat( Diagonal([1 for i=1:7]) , -Or ) #!!!! "-" helps?
+    A = Γ_scaled[:,1:7]
+    λ = λ_normalizing * diagm(vcat(ones(7), -ones(7)))
+    return (Γ_ONF, A, λ)
 end
-
 

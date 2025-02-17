@@ -29,6 +29,4 @@ make_poly_system
 include("Utils.jl")
 include("Lifting.jl")
 
-print("Module MukaiLiftP6 done!")
-
 end # module MukaiLiftP6
