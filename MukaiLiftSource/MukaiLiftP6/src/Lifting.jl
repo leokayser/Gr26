@@ -18,7 +18,7 @@ function make_start()
     # Γ is the set of self-dual points embedded in L 
     Γ = L\Z
 
-
+    
     Γ_ONF, A, λ = orthogonal_normal_form(Γ)  
 
     @assert(norm(A*Γ_ONF - Γ*λ, Inf) < 1e-10)

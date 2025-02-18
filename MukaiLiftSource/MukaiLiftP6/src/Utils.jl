@@ -180,11 +180,14 @@ function orthogonal_normal_form(Γ)
     λ_init = certify_selfdual(Γ)
     λ_normalizing = diagm(vcat([sqrt(Complex(λ_init[i,i])) for i=1:7],[sqrt(Complex(-λ_init[i,i])) for i=8:14]))
     Γ_scaled = Γ * λ_normalizing
-    Or = inv(Γ_scaled[:,1:7]) * Γ_scaled[:,8:14] 
-    #inv(I+Or)
-    Γ_ONF = hcat( Diagonal([1 for i=1:7]) , -Or ) #!!!! "-" helps?
+    Or = inv(Γ_scaled[:,1:7]) * Γ_scaled[:,8:14]
+    if minimum(abs.(eigenvalues(Or) + ones(7) )) < (1e-10)
+        Or = -Or
+        λ_normalizing = λ_normalizing * diagm(vcat(ones(7), -ones(7)))
+    end
+    Γ_ONF = hcat( Diagonal([1 for i=1:7]) , Or ) 
     A = Γ_scaled[:,1:7]
-    λ = λ_normalizing * diagm(vcat(ones(7), -ones(7)))
+    λ = λ_normalizing
     return (Γ_ONF, A, λ)
 end
 

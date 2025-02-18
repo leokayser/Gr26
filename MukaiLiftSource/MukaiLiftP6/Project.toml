@@ -10,3 +10,6 @@ JLD = "4138dd39-2aa7-5051-a626-17a0bb65d9c8"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Oscar = "f1435218-dba5-11e9-1e4d-f1a5fab5fc13"
 PkgTemplates = "14b8a8f1-9102-5b29-a752-f990bacb7fe1"
+
+[compat]
+Oscar = "1.0.3"
