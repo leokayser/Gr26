@@ -112,6 +112,28 @@ function vector_to_skew(a)
     return U - transpose(U)
 end
 
+# Compute a skew-symmetric matrix with entries in a complex vector
+# -------------  Input:
+# a            a complex vector
+# n            the size of the skew-symmetric matrix
+# -------------  Output:
+# S             a skew-symmetric matrix
+function vector_to_skew_complex(s,n)
+    S = ComplexF64[0.0 + 0.0im for _ in 1:n, _ in 1:n]
+    # Fill the strictly upper triangular part
+    index = 1  # Start from the first element of the vector
+    for i in 1:n
+        for j in i+1:n
+            S[i, j] = s[index]
+            index += 1
+        end
+    end
+    S = S - transpose(S)
+    return S 
+end
+
+
+
 # Compute the vector of entries of a skew-symmetric matrix
 # -------------  Input:
 # A            a nxn skew-symmetric matrix
@@ -191,3 +213,22 @@ function orthogonal_normal_form(Γ)
     return (Γ_ONF, A, λ)
 end
 
+
+
+
+# Verify that the matrix L embeds the configuration whose skew normal form is associated to S in the Grassmannian G(2,6)
+# -------------  Input:
+# S             a vector whose enties are the upper diagonal of a skew-symmetric matrix
+# L             An embedding of P^6 in P^14
+# -------------  Output:
+# the norm of plucker coordinates of the points embedded
+function verify_slicing(S, L)
+    ## create system with pluecker relations
+    @var q[1:15]
+    plück_oscar = gens( grassmann_pluecker_ideal(2,6))
+    plück_sys = System([oscar_to_HC_Q(plück_oscar[i], q) for i=1:15], variables=q)
+
+    Sk = vector_to_skew_complex(S,7)
+    Γ =  hcat(I+Sk, I-Sk )
+    return maximum([ norm(plück_sys(L * Γ[:,i]) ,Inf) for i =1:14])
+end

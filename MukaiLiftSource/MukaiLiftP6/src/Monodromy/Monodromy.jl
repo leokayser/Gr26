@@ -56,37 +56,45 @@ HomotopyContinuation.write_parameters("Solution_0.txt", sol_0[1])
 #sol_0 = HomotopyContinuation.read_parameters("Solution_0.txt")
 =#
 
-S_target_random1 = HomotopyContinuation.read_parameters("S_random1.txt")
-S_target_random2 = HomotopyContinuation.read_parameters("S_random2.txt")
-S_target_random3 = HomotopyContinuation.read_parameters("S_random3.txt")
+S_target_random1 = HomotopyContinuation.read_parameters("MukaiLiftP6/src/Monodromy/S_random1.txt")
+S_target_random2 = HomotopyContinuation.read_parameters("MukaiLiftP6/src/Monodromy/S_random2.txt")
+S_target_random3 = HomotopyContinuation.read_parameters("MukaiLiftP6/src/Monodromy/S_random3.txt")
 
-sol_0 = HomotopyContinuation.read_parameters("Solution_0.txt")
-sol_1a = HomotopyContinuation.read_parameters("Solution_1a.txt")
-sol_2 = HomotopyContinuation.read_parameters("Solution_2.txt")
-sol_3 = HomotopyContinuation.read_parameters("Solution_3.txt")
-sol_1b = HomotopyContinuation.read_parameters("Solution_1b.txt")
+sol_0 = HomotopyContinuation.read_parameters("MukaiLiftP6/src/Monodromy/Solution_0.txt")
+sol_1a = HomotopyContinuation.read_parameters("MukaiLiftP6/src/Monodromy/Solution_1a.txt")
+sol_2 = HomotopyContinuation.read_parameters("MukaiLiftP6/src/Monodromy/Solution_2.txt")
+sol_3 = HomotopyContinuation.read_parameters("MukaiLiftP6/src/Monodromy/Solution_3.txt")
+sol_1b = HomotopyContinuation.read_parameters("MukaiLiftP6/src/Monodromy/Solution_1b.txt")
 
 L_tilde_0 =  L_start + sum(sol_0[i]*A_rand[i] for i in eachindex(A_rand)) 
 L_tilde_1a = L_start + sum(sol_1a[i]*A_rand[i] for i in eachindex(A_rand)) 
 L_tilde_1b = L_start + sum(sol_1b[i]*A_rand[i] for i in eachindex(A_rand)) 
+L_tilde_2 = L_start + sum(sol_2[i]*A_rand[i] for i in eachindex(A_rand)) 
+L_tilde_3 = L_start + sum(sol_3[i]*A_rand[i] for i in eachindex(A_rand)) 
 
-# L_tilde_1a == L_tilde_1b up to SO(7)???
+
+function verify_slicing(S, L)
+    ## create system with pluecker relations
+    @var q[1:15]
+    plück_oscar = gens( grassmann_pluecker_ideal(2,6))
+    plück_sys = System([oscar_to_HC_Q(plück_oscar[i], q) for i=1:15], variables=q)
+
+    Sk = vector_to_skew_complex(S,7)
+    Γ =  hcat(I+Sk, I-Sk )
+    return maximum([ norm(plück_sys(L * Γ[:,i]) ,Inf) for i =1:14]) < 1e-10
+end
+
+verify_slicing(S_target_random3, L_tilde_3)
 
 
-#####################################
-########### Slicing Test ############
-#####################################
+# L_tilde_1a == L_tilde_1b up to SO(6)???
+minors(L_tilde_1a, 7)
 
-CC = ComplexField()
+a1 = det(L_tilde_1a[1:7,:])
+b1 = det(L_tilde_1b[1:7,:])
 
-S1 = ComplexF64.(vector_to_skew(CC.(S_target_random1)))
-Γ1 = vcat(I , cayley(S1) )
-#L = L_tilde*(I+S)*inv(A)
+a2 = det(L_tilde_1a[2:8,:])
+b2 = det(L_tilde_1b[2:8,:])
 
-## create system with pluecker relations
-@var q[1:15]
-plück_oscar = gens( grassmann_pluecker_ideal(2,6))
-plück_sys = System([oscar_to_HC_Q(plück_oscar[i], q) for i=1:15], variables=q)
+a1/b1 == a2/b2
 
-maximum([ norm(plück_sys(L_tilde_1a * Γ1[:,i]) ,Inf) for i =1:14]) < 1e-10
-maximum([ norm(plück_sys(L_tilde_1b * Γ1[:,i]) ,Inf) for i =1:14]) < 1e-10
