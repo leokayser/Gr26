@@ -193,9 +193,9 @@ end
 # -------------  Input:
 # Γ           a matrix whose columns represent self-dual points in P^6
 # -------------  Output:
-# Γ_norm           an orthogonal normal form of Γ   
-# Γ_scaled[1:7]    the first 7 columns of a scaled form of Γ such that certify_selfdual(Γ_scaled)=I⊕(-I) 
-# λ_normalizing    a scaling 14x14 matrix such that Γ_scaled= Γ*λ_normalizing
+# Γ_ONF           an orthogonal normal form of Γ   
+# A               the first 7 columns of a scaled form of Γ such that certify_selfdual(Γ_scaled)=I⊕(-I) 
+# λ               a scaling 14x14 matrix such that Γ_scaled= Γ*λ
 function orthogonal_normal_form(Γ)
     #ind = max_independent_points(Γ)
     #Γ = hcat(Γ[:,ind],Γ[:,deleteat!([i for i=1:14],ind)])
