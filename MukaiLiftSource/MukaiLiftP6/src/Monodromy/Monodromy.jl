@@ -73,21 +73,10 @@ L_tilde_2 = L_start + sum(sol_2[i]*A_rand[i] for i in eachindex(A_rand))
 L_tilde_3 = L_start + sum(sol_3[i]*A_rand[i] for i in eachindex(A_rand)) 
 
 
-function verify_slicing(S, L)
-    ## create system with pluecker relations
-    @var q[1:15]
-    plück_oscar = gens( grassmann_pluecker_ideal(2,6))
-    plück_sys = System([oscar_to_HC_Q(plück_oscar[i], q) for i=1:15], variables=q)
 
-    Sk = vector_to_skew_complex(S,7)
-    Γ =  hcat(I+Sk, I-Sk )
-    return maximum([ norm(plück_sys(L * Γ[:,i]) ,Inf) for i =1:14]) < 1e-10
-end
-
-verify_slicing(S_target_random3, L_tilde_3)
+verify_slicing(S_target_random3, L_tilde_3) 
 
 
-# L_tilde_1a == L_tilde_1b up to SO(6)???
 minors(L_tilde_1a, 7)
 
 a1 = det(L_tilde_1a[1:7,:])
@@ -96,5 +85,5 @@ b1 = det(L_tilde_1b[1:7,:])
 a2 = det(L_tilde_1a[2:8,:])
 b2 = det(L_tilde_1b[2:8,:])
 
-a1/b1 == a2/b2
+a1/b1 == a2/b2 ## false => L_tilde_1a and L_tilde_1b are not the same up to GL(7)
 
